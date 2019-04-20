@@ -1,3 +1,5 @@
+#ifndef SIM_H
+#define SIM_H
 #include <iostream>
 #include <string>
 #include "instruction.h"
@@ -12,3 +14,5 @@ class Simulation{
         forward = f;
     }
 };
+
+#endif
