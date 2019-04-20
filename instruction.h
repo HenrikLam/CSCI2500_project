@@ -1,3 +1,5 @@
+#ifndef INSTRUC_H
+#define INSTRUC_H
 #include <string>
 class instruction{
 public:
@@ -108,3 +110,5 @@ public:
         }
     }
 };
+
+#endif
