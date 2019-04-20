@@ -1,3 +1,5 @@
+#ifndef STAGE_H
+#define STAGE_H
 #include <string>
 #include "instruction.h"
 
@@ -49,3 +51,5 @@ public:
 }
 
 // IDStage should be responisble of identifying the need to stall
+
+#endif
