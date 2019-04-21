@@ -1,14 +1,20 @@
 #ifndef INSTRUC_H
 #define INSTRUC_H
 #include <string>
+#include "register.h"
 class instruction{
 public:
     int* program_counter;
     int* read_reg1;
     int* read_reg2;
     int* write_reg;
+    int stalls;
+    bool suspended = false;
     std::string output[15];
     virtual void evaluate();
+    void suspend(){
+        suspended = true;
+    }
 };
 
 class addInstruction: public instruction{
@@ -21,6 +27,7 @@ public:
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
+        stalls = 0;
     }
     void evaluate(){
         *write_reg = *read_reg1 + *read_reg2;
@@ -37,6 +44,7 @@ public:
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
+        stalls = 0;
     }
     void evaluate(){
         *write_reg = (!!(*read_reg1)) & (!!(*read_reg2));
@@ -53,6 +61,7 @@ public:
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
+        stalls = 0;
     }
     void evaluate(){
         *write_reg = (!!(*read_reg1)) | (!!(*read_reg2));
@@ -69,6 +78,7 @@ public:
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
+        stalls = 0;
     }
     void evaluate(){
         *write_reg = (*read_reg1) < (*read_reg2);
@@ -85,6 +95,7 @@ public:
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
+        stalls = 0;
     }
     void evaluate(){
         if (*read_reg1 == *read_reg2){
@@ -103,6 +114,7 @@ public:
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
+        stalls = 0;
     }
     void evaluate(){
         if (*read_reg1 != *read_reg2){
