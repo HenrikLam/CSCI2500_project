@@ -14,7 +14,6 @@
 // program_counter should only be used by jump instructions
 class instruction{
 public:
-    int* program_counter;
     Register* read_reg1;
     Register* read_reg2;
     Register* write_reg;
@@ -102,7 +101,7 @@ public:
     }
     void evaluate(){
         if (read_reg1->value == read_reg2->value){
-            *program_counter = write_reg->value;
+            write_reg->value = read_reg1->value & read_reg2->value;
         }
     }
 };
@@ -118,7 +117,7 @@ public:
     }
     void evaluate(){
         if (read_reg1->value != read_reg2->value){
-            *program_counter = write_reg->value;
+            write_reg->value = !(read_reg1->value & read_reg2->value);
         }
     }
 };

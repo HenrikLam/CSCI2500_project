@@ -10,7 +10,7 @@
 //  - parseLFormat
 class Simulation{
 private:
-    instruction parseRFormat(std::string& instruction){
+    instruction parseLine(std::string& instruction){
         Register* read1;
         Register* read2;
         Register* write;
@@ -59,7 +59,11 @@ private:
             return orInstruction(read1, read2, write);
         } else if (instruction.find("slt") != std::string::npos){
             return sltInstruction(read1, read2, write);
-        } else {
+        } else if (instruction.find("beq") != std::string::npos){
+            return beqInstruction(read1, read2, &flag);
+        } else if (instruction.find("bne") != std::string::npos){
+            return bneInstruction(read1, read2, &flag);
+        } else{
             throw std::runtime_error("Instruction type not supported");
         }
     }
@@ -67,6 +71,8 @@ public:
     bool forward;
     Register saved_reg[7];
     Register temp_reg[10];
+    // register for storing 1 or 0 for beq and bne
+    Register flag;
     Register zero;
     instruction instructions[10];
     int instruction_count;
@@ -83,17 +89,13 @@ public:
         for (int i = 0; i < inst_count; i++){
             bool is_label = false;
             instruction* current_inst = instructions + i;
-            if (instruction_strings[i].find("beq") != std::string::npos){
-
-            } else if (instruction_strings[i].find("bne") != std::string::npos){
-
-            } else if (instruction_strings[i].find(":") != std::string::npos){
+            if (instruction_strings[i].find(":") != std::string::npos){
                 // label instruction
                 is_label = true;
                 instruction_index--;
             } else {
                 // r-format instruction
-                instructions[instruction_index] = parseRFormat(instruction_strings[i]);
+                instructions[instruction_index] = parseLine(instruction_strings[i]);
             }
             instruction_index++;
         }
