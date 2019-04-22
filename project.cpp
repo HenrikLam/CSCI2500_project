@@ -1,3 +1,4 @@
+#include <iostream>
 #include <fstream>
 #include <string>
 #include <string.h>
@@ -8,8 +9,7 @@ int main(int argc, char* argv[]){
 	if (argc < 3) return EXIT_FAILURE;
     // use -t to toggle testing
     bool forwarding = !(strcmp(argv[1], "N") == 0);
-    std::ifstream input_file;
-    input_file.open(argv[2]);
+    std::ifstream input_file(argv[2]);
     std::string instructions[10];
     int instruction_count = 0;
     if (input_file.is_open()){
