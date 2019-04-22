@@ -14,7 +14,6 @@ public:
     int cycle_count = 0;
     int* saved_reg;
     int* temp_reg;
-    int bubble_count;
     instruction* inst;
     int instruction_index;
     bool forward;
@@ -56,7 +55,7 @@ public:
 class IDStage: public stage{
 private:
     void passInstruction(){
-
+        
     }
 public:
     IDStage(int* s_reg, int* t_reg, instruction* i, bool f, stage* id){

@@ -7,7 +7,8 @@
 #include "register.h"
 #include <map>
 // to do:
-//  - parseLFormat
+//  - integrate stages
+//  - simulate method (actual simulation after everything is parsed)
 class Simulation{
 private:
     instruction parseLine(std::string& instruction){
@@ -52,17 +53,17 @@ private:
         }
         
         if (instruction.find("add") != std::string::npos){
-            return addInstruction(read1, read2, write);
+            return addInstruction(read1, read2, write, instruction);
         } else if (instruction.find("and") != std::string::npos){
-            return andInstruction(read1, read2, write);
+            return andInstruction(read1, read2, write, instruction);
         } else if (instruction.find("or") != std::string::npos){
-            return orInstruction(read1, read2, write);
+            return orInstruction(read1, read2, write, instruction);
         } else if (instruction.find("slt") != std::string::npos){
-            return sltInstruction(read1, read2, write);
+            return sltInstruction(read1, read2, write, instruction);
         } else if (instruction.find("beq") != std::string::npos){
-            return beqInstruction(read1, read2, &flag);
+            return beqInstruction(read1, read2, &flag, instruction);
         } else if (instruction.find("bne") != std::string::npos){
-            return bneInstruction(read1, read2, &flag);
+            return bneInstruction(read1, read2, &flag, instruction);
         } else{
             throw std::runtime_error("Instruction type not supported");
         }
@@ -87,11 +88,10 @@ public:
         instruction_count = inst_count;
         int instruction_index = 0;
         for (int i = 0; i < inst_count; i++){
-            bool is_label = false;
             instruction* current_inst = instructions + i;
             if (instruction_strings[i].find(":") != std::string::npos){
                 // label instruction
-                is_label = true;
+                label_map[instruction_strings[i].substr(0,instruction_strings[i].length -1)] = instruction_index;
                 instruction_index--;
             } else {
                 // r-format instruction

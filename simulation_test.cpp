@@ -21,7 +21,5 @@ int main(int argc, char* argv[]){
     }
     assert(sim1.saved_reg[1].value == 1);
     assert(sim1.temp_reg[2].value == 74);
-    assert(sim1.temp_reg[4].value == 74);
-
-    
+    assert(sim1.temp_reg[4].value == 74);   
 }
