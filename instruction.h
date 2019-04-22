@@ -2,6 +2,8 @@
 #define INSTRUC_H
 #include <string>
 #include "register.h"
+#include <exception>
+#include <iostream>
 // to do:
 //  - how should jump instructions be implemented?
 
