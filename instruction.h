@@ -2,6 +2,9 @@
 #define INSTRUC_H
 #include <string>
 #include "register.h"
+// to do:
+//  - how should jump instructions be implemented?
+
 // contains the two read registers
 // contains suspended flag for when the instruction should no longer be executed
 // contains stall counter indicating how many stalls there are that are associated with this instruction
@@ -16,7 +19,9 @@ public:
     int stalls;
     bool suspended = false;
     std::string output[15];
-    virtual void evaluate();
+    virtual void evaluate(){
+        throw std::runtime_error("evaluate an undefined instruction");
+    }
     void suspend(){
         suspended = true;
     }
@@ -29,9 +34,8 @@ public:
 
 class addInstruction: public instruction{
 public:
-    addInstruction(int* pc, Register* rr1, Register* rr2, Register* wr){
+    addInstruction(Register* rr1, Register* rr2, Register* wr){
         initializeOutput();
-        program_counter = pc;
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
@@ -44,9 +48,8 @@ public:
 
 class andInstruction: public instruction{
 public:
-    andInstruction(int* pc, Register* rr1, Register* rr2, Register* wr){
+    andInstruction(Register* rr1, Register* rr2, Register* wr){
         initializeOutput();
-        program_counter = pc;
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
@@ -59,9 +62,8 @@ public:
 
 class orInstruction: public instruction{
 public:
-    orInstruction(int* pc, Register* rr1, Register* rr2, Register* wr){
+    orInstruction(Register* rr1, Register* rr2, Register* wr){
         initializeOutput();
-        program_counter = pc;
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
@@ -74,9 +76,8 @@ public:
 
 class sltInstruction: public instruction{
 public:
-    sltInstruction(int* pc, Register* rr1, Register* rr2, Register* wr){
+    sltInstruction(Register* rr1, Register* rr2, Register* wr){
         initializeOutput();
-        program_counter = pc;
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
@@ -90,9 +91,8 @@ public:
 // special case in that the write registers stores the index of the label to be stored at
 class beqInstruction: public instruction{
 public:
-    beqInstruction(int* pc, Register* rr1, Register* rr2, Register* wr){
+    beqInstruction(Register* rr1, Register* rr2, Register* wr){
         initializeOutput();
-        program_counter = pc;
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
@@ -107,9 +107,8 @@ public:
 
 class bneInstruction: public instruction{
 public:
-    bneInstruction(int* pc, Register* rr1, Register* rr2, Register* wr){
+    bneInstruction(Register* rr1, Register* rr2, Register* wr){
         initializeOutput();
-        program_counter = pc;
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
@@ -124,8 +123,7 @@ public:
 
 class labelInstruction: public instruction{
 public:
-    labelInstruction(int* pc, Register* rr1, Register* rr2, Register* wr){
-        program_counter = pc;
+    labelInstruction(Register* rr1, Register* rr2, Register* wr){
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
@@ -134,5 +132,5 @@ public:
     void evaluate(){
         throw std::runtime_error("Attempting to evaluate a label");
     }
-}
+};
 #endif

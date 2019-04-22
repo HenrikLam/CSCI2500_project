@@ -2,6 +2,8 @@
 #define STAGE_H
 #include <string>
 #include "instruction.h"
+// to do:
+//  - everything xd
 
 // inst is the point to the beginning of the array of instructions
 // instruction_index keeps track of what instruction the stage is
