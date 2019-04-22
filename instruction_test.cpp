@@ -48,4 +48,5 @@ int main (){
     read2.value = 10;
     inst3.evaluate();
     assert(write.value == 0);
+    
 }
