@@ -15,6 +15,7 @@
 // program_counter should only be used by jump instructions
 class instruction{
 public:
+    std::string instruction_type;
     Register* read_reg1;
     Register* read_reg2;
     Register* write_reg;
@@ -32,11 +33,10 @@ public:
         suspended = true;
     }
     void writeBack(){
-        write_reg->value = evaluatedValue;
-        write_reg->forwarded = false;
+        write_reg->setValue(evaluatedValue);
     }
     void forward(){
-        write_reg->value = evaluatedValue;
+        write_reg->setForwardValue(evaluatedValue);
     }
     void initializeOutput(){
         output[0] = new std::string[15];
@@ -91,6 +91,7 @@ public:
 class addInstruction: public instruction{
 public:
     addInstruction(Register* rr1, Register* rr2, Register* wr, std::string& instruction_str){
+        instruction_type = "add";
         initializeOutput();
         line = instruction_str;
         read_reg1 = rr1;
@@ -99,13 +100,14 @@ public:
         stalls = 0;
     }
     void evaluate(){
-        evaluatedValue = read_reg1->value + read_reg2->value;
+        evaluatedValue = read_reg1->getValue() + read_reg2->getValue();
     }
 };
 
 class andInstruction: public instruction{
 public:
     andInstruction(Register* rr1, Register* rr2, Register* wr, std::string& instruction_str){
+        instruction_type = "and";
         initializeOutput();
         line = instruction_str;
         read_reg1 = rr1;
@@ -114,13 +116,14 @@ public:
         stalls = 0;
     }
     void evaluate(){
-        evaluatedValue = (!!(read_reg1->value)) & (!!(read_reg2->value));
+        evaluatedValue = (!!(read_reg1->getValue())) & (!!(read_reg2->getValue()));
     }
 };
 
 class orInstruction: public instruction{
 public:
     orInstruction(Register* rr1, Register* rr2, Register* wr, std::string& instruction_str){
+        instruction_type = "or";
         initializeOutput();
         line = instruction_str;
         read_reg1 = rr1;
@@ -129,13 +132,14 @@ public:
         stalls = 0;
     }
     void evaluate(){
-        evaluatedValue = (!!(read_reg1->value)) | (!!(read_reg2->value));
+        evaluatedValue = (!!(read_reg1->getValue())) | (!!(read_reg2->getValue()));
     }
 };
 
 class sltInstruction: public instruction{
 public:
     sltInstruction(Register* rr1, Register* rr2, Register* wr, std::string& instruction_str){
+        instruction_type = "slt";
         initializeOutput();
         line = instruction_str;
         read_reg1 = rr1;
@@ -144,7 +148,7 @@ public:
         stalls = 0;
     }
     void evaluate(){
-        evaluatedValue = read_reg1->value < read_reg2->value;
+        evaluatedValue = read_reg1->getValue() < read_reg2->getValue();
     }
 };
 
@@ -152,6 +156,7 @@ public:
 class beqInstruction: public instruction{
 public:
     beqInstruction(Register* rr1, Register* rr2, Register* wr, std::string& instruction_str){
+        instruction_type = "beq";
         initializeOutput();
         line = instruction_str;
         read_reg1 = rr1;
@@ -160,7 +165,7 @@ public:
         stalls = 0;
     }
     void evaluate(){
-        if (read_reg1->value == read_reg2->value){
+        if (read_reg1->getValue() == read_reg2->getValue()){
             evaluatedValue = 1;
         } else {
             evaluatedValue = 0;
@@ -171,6 +176,7 @@ public:
 class bneInstruction: public instruction{
 public:
     bneInstruction(Register* rr1, Register* rr2, Register* wr, std::string& instruction_str){
+        instruction_type = "bne";
         initializeOutput();
         line = instruction_str;
         read_reg1 = rr1;
@@ -179,7 +185,7 @@ public:
         stalls = 0;
     }
     void evaluate(){
-        if (read_reg1->value != read_reg2->value){
+        if (read_reg1->getValue() != read_reg2->getValue()){
             evaluatedValue = 1;
         } else {
             evaluatedValue = 0;
@@ -190,6 +196,7 @@ public:
 class labelInstruction: public instruction{
 public:
     labelInstruction(Register* rr1, Register* rr2, Register* wr, std::string& instruction_str){
+        instruction_type = "label:" + instruction_str;
         line = instruction_str;
         read_reg1 = rr1;
         read_reg2 = rr2;

@@ -18,5 +18,21 @@ public:
         value = forwardedValue;
         forwarded = true;
     }
+    
+    int getValue(){
+        if (forwarded){
+            return forwardedValue;
+        } else {
+            return value;
+        }
+    }
+    int setForwardValue (int v){
+        forwarded = true;
+        forwardedValue = v;
+    }
+    int setValue(int v){
+        forwarded = false;
+        value = v;
+    }
 };
 #endif

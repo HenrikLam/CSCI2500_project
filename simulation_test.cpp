@@ -2,24 +2,33 @@
 #include <iostream>
 #include <fstream>
 #include <assert.h>
-int main(int argc, char* argv[]){
-    if (argc < 3) return EXIT_FAILURE;
-    std::ifstream input_file("p1-input01.txt");
+void testParse();
+
+int main(){
+    testParse();
+}
+
+void testParse(){
     std::string instructions[10];
-    int instruction_count = 0;
-    if (input_file.is_open()){
-        while (getline(input_file, instructions[instruction_count])){
-            ++instruction_count;
-        }
-        input_file.close();
-    }
+    instructions[0] = "ori $s1,$zero,451";
+    instructions[1] = "or $s1,$zero,451";
+    instructions[2] = "addi $t2,$s0,73";
+    instructions[3] = "add $t2,$s0,73";
+    instructions[4] = "label:";
+    instructions[5] = "and $t3, $s0, $s1";
+    instructions[6] = "andi $t3, $s0, $s1";
+    instructions[7] = "beq $t3, $t3, label";
+    instructions[8] = "bne $t3, $zero, label";
+    int instruction_count = 9;
     Simulation sim1(false);
     sim1.parseInstructions(instructions, instruction_count);
-    assert(sim1.instruction_count == 3);
-    for (int i = 0; i < instruction_count; i++){
-        sim1.instructions[i].evaluate();
-    }
-    assert(sim1.saved_reg[1].value == 1);
-    assert(sim1.temp_reg[2].value == 74);
-    assert(sim1.temp_reg[4].value == 74);   
+    assert(sim1.instruction_count == 8);
+    assert(sim1.instructions[0].instruction_type.compare("or") == 0);
+    assert(sim1.instructions[1].instruction_type.compare("or") == 0);
+    assert(sim1.instructions[2].instruction_type.compare("add") == 0);
+    assert(sim1.instructions[3].instruction_type.compare("add") == 0);
+    assert(sim1.instructions[4].instruction_type.compare("and") == 0);
+    assert(sim1.instructions[5].instruction_type.compare("and") == 0);
+    assert(sim1.instructions[6].instruction_type.compare("beq") == 0);
+    assert(sim1.instructions[7].instruction_type.compare("bne") == 0);
 }

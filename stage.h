@@ -1,6 +1,7 @@
 #ifndef STAGE_H
 #define STAGE_H
 #include <string>
+#include <vector>
 #include "instruction.h"
 // to do:
 //  - everything xd
@@ -17,28 +18,32 @@ protected:
     }
     // updates the output of the simulation
     void updateOutput(){
-        if (inst == NULL || instruction_index == -1) return;
+        if (inst.size() > 0 || instruction_index == -1) return;
         inst[instruction_index].mark_cycle(cycle_count, stage_name);
+    }
+    void flush(){
+        instruction_index = -1;
+    }
+    void flushAll(){
+        instruction_index = -1;
+        if (next != NULL){
+            next->flushAll();
+        }
     }
 public:
     std::string stage_name;
     int cycle_count = 0;
-    int* saved_reg;
-    int* temp_reg;
-    instruction* inst;
+    std::vector<instruction> inst;
     // -1 is special value for no instruction currently in the stage
     int instruction_index = -1;
     bool forward;
     stage* next;
-    virtual void passInstruction();
-    virtual void execute();
+    void execute();
 };
 
 class IFStage: public stage{
 public:
-    IFStage(int* s_reg, int* t_reg, instruction* i, bool f, stage* id){
-        saved_reg = s_reg;
-        temp_reg = t_reg;
+    IFStage(std::vector<instruction>& i, bool f, stage* id){
         inst = i;
         forward = f;
         next = id;
@@ -50,7 +55,7 @@ public:
     // only execute if no stalls, checked in simulation class
     void execute(){
         next->execute();
-        if (inst != NULL){
+        if (inst.size() > 0 && instruction_index != -1){
             passInstruction();
         }
         updateOutput();
@@ -63,7 +68,7 @@ public:
 class IDStage: public stage{
 private:
     int checkForStall(){
-        if (inst == NULL){
+        if (inst.size() > 0){
             return false;
         }
         int stall_count = 0;
@@ -78,18 +83,16 @@ private:
         return stall_count;
     }
 public:
-    IDStage(int* s_reg, int* t_reg, instruction* i, bool f, stage* id){
-        saved_reg = s_reg;
-        temp_reg = t_reg;
+    IDStage(std::vector<instruction>& i, bool f, stage* id){
         inst = i;
         forward = f;
         next = id;
         stage_name = "ID";
     }
-    // only execute if no stalls, checked in simulation class
+    // check for stall, if needs to be stalled, don't pass the instruction to the next stage
     void execute(){
         next->execute();
-        if (inst != NULL && instruction_index != -1){
+        if (inst.size() > 0 && instruction_index != -1){
             int stall_count = checkForStall();
             if (stall_count == 0){
                 passInstruction();
@@ -104,18 +107,15 @@ public:
 
 class EXEStage: public stage{
 public:
-    EXEStage(int* s_reg, int* t_reg, instruction* i, bool f, stage* id){
-        saved_reg = s_reg;
-        temp_reg = t_reg;
+    EXEStage(std::vector<instruction>& i, bool f, stage* id){
         inst = i;
         forward = f;
         next = id;
         stage_name = "EXE";
     }
-    // only execute if no stalls, checked in simulation class
     void execute(){
         next->execute();
-        if (inst != NULL){
+        if (inst.size() > 0 && instruction_index != -1){
             inst[instruction_index].evaluate();
             passInstruction();
         }
@@ -124,7 +124,43 @@ public:
     }
 };
 
-class WBStage: public stage{
+class MEMStage: public stage{
+public:
+    MEMStage(std::vector<instruction>& i, bool f, stage* id){
+        inst = i;
+        forward = f;
+        next = id;
+        stage_name = "MEM";
+    }
+    // if forward flag is set the instruction will forward the evaluated result
+    void execute(){
+        next->execute();
+        if (inst.size() > 0 && instruction_index != -1){
+            if (forward){
+                inst[instruction_index].forward();
+            }
+            passInstruction();
+        }
+        updateOutput();
+        cycle_count++;
+    }
+};
 
-}
+class WBStage: public stage{
+public:
+    WBStage(std::vector<instruction>& i, bool f, stage* id){
+        inst = i;
+        forward = f;
+        next = id;
+        stage_name = "WB";
+    }
+    // if forward flag is set the instruction will forward the evaluated result
+    void execute(){
+        if (inst.size() > 0 && instruction_index != -1){
+            inst[instruction_index].writeBack();
+        }
+        updateOutput();
+        cycle_count++;
+    }
+};
 #endif

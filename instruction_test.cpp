@@ -114,4 +114,12 @@ int main (){
     inst6.mark_cycle(5, "WB");
     inst6.advance_stalls(5);
     inst6.print_instruction();
+
+    line = "forward test";
+    addInstruction inst7(&read1, &read2, &write, line);
+    read1.setValue(11);
+    read2.setForwardValue(23);
+    inst7.evaluate();
+    inst7.writeBack();
+    assert(write.value == 34);
 }

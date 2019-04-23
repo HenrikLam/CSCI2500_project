@@ -6,7 +6,7 @@
 #include "stage.h"
 #include "register.h"
 #include <map>
-#include <list>
+#include <vector>
 // to do:
 //  - integrate stages
 //  - simulate method (actual simulation after everything is parsed)
@@ -76,15 +76,21 @@ public:
     // register for storing 1 or 0 for beq and bne
     Register flag;
     Register zero;
-    std::list<instruction> usedInstruction;
+    std::vector<instruction> usedInstruction;
     instruction instructions[10];
     int instruction_count;
+    IFStage* stage1;
     // maps the label to the instruction line it is leading to
     std::map<std::string, int> label_map;
     Simulation(bool f){
         zero.value = 0;
         forward = f;
         instruction_count = 0;
+        WBStage* stage5 = new WBStage(usedInstruction, f, NULL);
+        MEMStage* stage4 = new MEMStage(usedInstruction, f, stage5);
+        EXEStage* stage3 = new EXEStage(usedInstruction, f, stage4);
+        IDStage* stage2 = new IDStage(usedInstruction, f, stage3);
+        stage1 = new IFStage(usedInstruction, f, stage2);
     }
     int mapLabelTo(const std::string& label){
         std::map<std::string, int>::iterator itr = label_map.find(label);
@@ -101,8 +107,9 @@ public:
             instruction* current_inst = instructions + i;
             if (instruction_strings[i].find(":") != std::string::npos){
                 // label instruction
-                label_map[instruction_strings[i].substr(0,instruction_strings[i].length -1)] = instruction_index;
+                label_map[instruction_strings[i].substr(0,instruction_strings[i].length() -1)] = instruction_index;
                 instruction_index--;
+                instruction_count--;
             } else {
                 // r-format instruction
                 instructions[instruction_index] = parseLine(instruction_strings[i]);
