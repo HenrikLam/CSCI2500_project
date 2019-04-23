@@ -6,6 +6,7 @@
 #include "stage.h"
 #include "register.h"
 #include <map>
+#include <list>
 // to do:
 //  - integrate stages
 //  - simulate method (actual simulation after everything is parsed)
@@ -75,6 +76,7 @@ public:
     // register for storing 1 or 0 for beq and bne
     Register flag;
     Register zero;
+    std::list<instruction> usedInstruction;
     instruction instructions[10];
     int instruction_count;
     // maps the label to the instruction line it is leading to
@@ -83,6 +85,14 @@ public:
         zero.value = 0;
         forward = f;
         instruction_count = 0;
+    }
+    int mapLabelTo(const std::string& label){
+        std::map<std::string, int>::iterator itr = label_map.find(label);
+        if (itr != label_map.end()){
+            return itr->second;
+        } else {
+            return -1;
+        }
     }
     void parseInstructions(std::string* instruction_strings, int inst_count){
         instruction_count = inst_count;

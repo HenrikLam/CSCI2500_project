@@ -11,11 +11,13 @@ int main (){
     line = "add test";
     addInstruction inst1(&read1, &read2, &write, line);
     inst1.evaluate();
+    inst1.writeBack();
     assert(write.value == 110);
 
     read1.value = 100;
     read2.value = -10;
     inst1.evaluate();
+    inst1.writeBack();
     assert(write.value == 90);
 
     read1.value = 0;
@@ -23,16 +25,19 @@ int main (){
     line = "or test";
     orInstruction inst2(&read1, &read2, &write, line);
     inst2.evaluate();
+    inst2.writeBack();
     assert(write.value == 0);
 
     read1.value = 0;
     read2.value = 1;
     inst2.evaluate();
+    inst2.writeBack();
     assert(write.value == 1);
 
     read1.value = 1;
     read2.value = 1;
     inst2.evaluate();
+    inst2.writeBack();
     assert(write.value == 1);
 
     read1.value = 10;
@@ -40,16 +45,19 @@ int main (){
     line = "slt test";
     sltInstruction inst3(&read1, &read2, &write, line);
     inst3.evaluate();
+    inst3.writeBack();
     assert(write.value == 1);
 
     read1.value = 20;
     read2.value = 10;
     inst3.evaluate();
+    inst3.writeBack();
     assert(write.value == 0);
 
     read1.value = 10;
     read2.value = 10;
     inst3.evaluate();
+    inst3.writeBack();
     assert(write.value == 0);
     
     read1.value = 10;
@@ -57,16 +65,19 @@ int main (){
     line = "beq test";
     beqInstruction inst4(&read1, &read2, &write, line);
     inst4.evaluate();
+    inst4.writeBack();
     assert(write.value == 0);
 
     read1.value = 20;
     read2.value = 10;
     inst4.evaluate();
+    inst4.writeBack();
     assert(write.value == 0);
 
     read1.value = 10;
     read2.value = 10;
     inst4.evaluate();
+    inst4.writeBack();
     assert(write.value == 1);
 
     read1.value = 10;
@@ -74,16 +85,19 @@ int main (){
     line = "bne test";
     beqInstruction inst5(&read1, &read2, &write, line);
     inst5.evaluate();
+    inst5.writeBack();
     assert(write.value != 1);
 
     read1.value = 20;
     read2.value = 10;
     inst5.evaluate();
+    inst5.writeBack();
     assert(write.value != 1);
 
     read1.value = 10;
     read2.value = 10;
     inst5.evaluate();
+    inst5.writeBack();
     assert(write.value != 0);
 
     line = "print test";

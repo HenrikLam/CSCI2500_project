@@ -21,6 +21,7 @@ public:
     std::string line;
     int stalls;
     bool suspended = false;
+    int evaluatedValue;
     // 0-th index is the actual instruction
     // subsequent index are for stalls
     std::string* output[3];
@@ -29,6 +30,13 @@ public:
     }
     void suspend(){
         suspended = true;
+    }
+    void writeBack(){
+        write_reg->value = evaluatedValue;
+        write_reg->forwarded = false;
+    }
+    void forward(){
+        write_reg->value = evaluatedValue;
     }
     void initializeOutput(){
         output[0] = new std::string[15];
@@ -41,11 +49,13 @@ public:
         }
     }
     void insert_stalls(int stall_amount){
-        if (stall_amount > 2 || stall_amount < 0) throw std::runtime_error("too many stalls");
-        stalls += stall_amount;
-        for (int i = 0; i < 15; i++){
-            for (int j = 1; j <= stall_amount; j++){
-                output[j][i] = output[0][i];
+        if (stall_amount > 2 || stall_amount < 0) throw std::runtime_error("invalid number of stalls");
+        if (stalls == 0){
+            stalls += stall_amount;
+            for (int i = 0; i < 15; i++){
+                for (int j = 1; j <= stall_amount; j++){
+                    output[j][i] = output[0][i];
+                }
             }
         }
     }
@@ -89,7 +99,7 @@ public:
         stalls = 0;
     }
     void evaluate(){
-        write_reg->value = read_reg1->value + read_reg2->value;
+        evaluatedValue = read_reg1->value + read_reg2->value;
     }
 };
 
@@ -104,7 +114,7 @@ public:
         stalls = 0;
     }
     void evaluate(){
-        write_reg->value = (!!(read_reg1->value)) & (!!(read_reg2->value));
+        evaluatedValue = (!!(read_reg1->value)) & (!!(read_reg2->value));
     }
 };
 
@@ -119,7 +129,7 @@ public:
         stalls = 0;
     }
     void evaluate(){
-        write_reg->value = (!!(read_reg1->value)) | (!!(read_reg2->value));
+        evaluatedValue = (!!(read_reg1->value)) | (!!(read_reg2->value));
     }
 };
 
@@ -134,7 +144,7 @@ public:
         stalls = 0;
     }
     void evaluate(){
-        write_reg->value = read_reg1->value < read_reg2->value;
+        evaluatedValue = read_reg1->value < read_reg2->value;
     }
 };
 
@@ -151,9 +161,9 @@ public:
     }
     void evaluate(){
         if (read_reg1->value == read_reg2->value){
-            write_reg->value = 1;
+            evaluatedValue = 1;
         } else {
-            write_reg->value = 0;
+            evaluatedValue = 0;
         }
     }
 };
@@ -170,9 +180,9 @@ public:
     }
     void evaluate(){
         if (read_reg1->value != read_reg2->value){
-            write_reg->value = 1;
+            evaluatedValue = 1;
         } else {
-            write_reg->value = 0;
+            evaluatedValue = 0;
         }
     }
 };
