@@ -32,6 +32,8 @@ protected:
         }
     }
 public:
+    virtual bool shouldJump() = 0;
+    virtual std::string getJumpLabel() = 0;
     std::string stage_name;
     int cycle_count = 0;
     std::vector<instruction*> inst;
@@ -50,12 +52,21 @@ public:
         next = id;
         stage_name = "IF";
     }
+    bool shouldJump(){
+        return next->shouldJump();
+    }
+    std::string getJumpLabel(){
+        return next->getJumpLabel();
+    }
     void fetchInstruction(int index){
         instruction_index = index;
     }
     // only execute if no stalls, checked in simulation class
     void execute(){
         next->execute();
+        if (shouldJump()){
+            flushAll;
+        }
         if (inst.size() > 0 && instruction_index != -1){
             passInstruction();
         }
@@ -90,6 +101,12 @@ public:
         next = id;
         stage_name = "ID";
     }
+    bool shouldJump(){
+        return next->shouldJump();
+    }
+    std::string getJumpLabel(){
+        return next->getJumpLabel();
+    }
     // check for stall, if needs to be stalled, don't pass the instruction to the next stage
     void execute(){
         next->execute();
@@ -114,6 +131,12 @@ public:
         next = id;
         stage_name = "EXE";
     }
+    bool shouldJump(){
+        return next->shouldJump();
+    }
+    std::string getJumpLabel(){
+        return next->getJumpLabel();
+    }
     void execute(){
         next->execute();
         if (inst.size() > 0 && instruction_index != -1){
@@ -133,6 +156,12 @@ public:
         next = id;
         stage_name = "MEM";
     }
+    bool shouldJump(){
+        return next->shouldJump();
+    }
+    std::string getJumpLabel(){
+        return next->getJumpLabel();
+    }
     // if forward flag is set the instruction will forward the evaluated result
     void execute(){
         next->execute();
@@ -149,11 +178,19 @@ public:
 
 class WBStage: public stage{
 public:
+    bool jump = false;
+    std::string jumpLabel = "";
     WBStage(std::vector<instruction*>& i, bool f, stage* id){
         inst = i;
         forward = f;
         next = id;
         stage_name = "WB";
+    }
+    bool shouldJump(){
+        return jump;
+    }
+    std::string getJumpLabel(){
+        return jumpLabel;
     }
     // if forward flag is set the instruction will forward the evaluated result
     void execute(){
