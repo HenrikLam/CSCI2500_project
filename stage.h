@@ -19,11 +19,11 @@ protected:
     // updates the output of the simulation
     void updateOutput(){
         if (inst.size() > 0 || instruction_index == -1) return;
-        inst[instruction_index].mark_cycle(cycle_count, stage_name);
+        inst[instruction_index]->mark_cycle(cycle_count, stage_name);
     }
     void flush(){
         instruction_index = -1;
-        inst[instruction_index].terminate();
+        inst[instruction_index]->terminate();
     }
     void flushAll(){
         flush();
@@ -34,7 +34,7 @@ protected:
 public:
     std::string stage_name;
     int cycle_count = 0;
-    std::vector<instruction> inst;
+    std::vector<instruction*> inst;
     // -1 is special value for no instruction currently in the stage
     int instruction_index = -1;
     bool forward;
@@ -44,7 +44,7 @@ public:
 
 class IFStage: public stage{
 public:
-    IFStage(std::vector<instruction>& i, bool f, stage* id){
+    IFStage(std::vector<instruction*>& i, bool f, stage* id){
         inst = i;
         forward = f;
         next = id;
@@ -74,17 +74,17 @@ private:
         }
         int stall_count = 0;
         if (instruction_index == -1) return stall_count;
-        instruction current_instruction = inst[instruction_index];
-        if (current_instruction.read_reg1->usedFlag == true && current_instruction.read_reg1->forwarded == false){
+        instruction* current_instruction = inst[instruction_index];
+        if (current_instruction->read_reg1->usedFlag == true && current_instruction->read_reg1->forwarded == false){
             stall_count++;
         } 
-        if (current_instruction.read_reg2->usedFlag == true && current_instruction.read_reg1->forwarded == true){
+        if (current_instruction->read_reg2->usedFlag == true && current_instruction->read_reg1->forwarded == true){
             stall_count++;
         }
         return stall_count;
     }
 public:
-    IDStage(std::vector<instruction>& i, bool f, stage* id){
+    IDStage(std::vector<instruction*>& i, bool f, stage* id){
         inst = i;
         forward = f;
         next = id;
@@ -98,7 +98,7 @@ public:
             if (stall_count == 0){
                 passInstruction();
             } else {
-                inst[instruction_index].insert_stalls(stall_count);
+                inst[instruction_index]->insert_stalls(stall_count);
             }
         }
         updateOutput();
@@ -108,7 +108,7 @@ public:
 
 class EXEStage: public stage{
 public:
-    EXEStage(std::vector<instruction>& i, bool f, stage* id){
+    EXEStage(std::vector<instruction*>& i, bool f, stage* id){
         inst = i;
         forward = f;
         next = id;
@@ -117,7 +117,7 @@ public:
     void execute(){
         next->execute();
         if (inst.size() > 0 && instruction_index != -1){
-            inst[instruction_index].evaluate();
+            inst[instruction_index]->evaluate();
             passInstruction();
         }
         updateOutput();
@@ -127,7 +127,7 @@ public:
 
 class MEMStage: public stage{
 public:
-    MEMStage(std::vector<instruction>& i, bool f, stage* id){
+    MEMStage(std::vector<instruction*>& i, bool f, stage* id){
         inst = i;
         forward = f;
         next = id;
@@ -138,7 +138,7 @@ public:
         next->execute();
         if (inst.size() > 0 && instruction_index != -1){
             if (forward){
-                inst[instruction_index].forward();
+                inst[instruction_index]->forward();
             }
             passInstruction();
         }
@@ -149,7 +149,7 @@ public:
 
 class WBStage: public stage{
 public:
-    WBStage(std::vector<instruction>& i, bool f, stage* id){
+    WBStage(std::vector<instruction*>& i, bool f, stage* id){
         inst = i;
         forward = f;
         next = id;
@@ -158,7 +158,7 @@ public:
     // if forward flag is set the instruction will forward the evaluated result
     void execute(){
         if (inst.size() > 0 && instruction_index != -1){
-            inst[instruction_index].writeBack();
+            inst[instruction_index]->writeBack();
         }
         updateOutput();
         cycle_count++;

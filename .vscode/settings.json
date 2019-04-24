@@ -32,6 +32,8 @@
         "tuple": "cpp",
         "utility": "cpp",
         "cstdarg": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "ctime": "cpp",
+        "iomanip": "cpp"
     }
 }

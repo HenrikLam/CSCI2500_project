@@ -3,9 +3,11 @@
 #include <fstream>
 #include <assert.h>
 void testParse();
+void testPrint();
 
 int main(){
     testParse();
+    testPrint();
 }
 
 void testParse(){
@@ -23,15 +25,25 @@ void testParse(){
     Simulation sim1(false);
     sim1.parseInstructions(instructions, instruction_count);
     assert(sim1.instruction_count == 8);
-    assert(sim1.instructions[0].instruction_type.compare("or") == 0);
-    assert(sim1.instructions[1].instruction_type.compare("or") == 0);
-    assert(sim1.instructions[2].instruction_type.compare("add") == 0);
-    assert(sim1.instructions[3].instruction_type.compare("add") == 0);
-    assert(sim1.instructions[4].instruction_type.compare("and") == 0);
-    assert(sim1.instructions[5].instruction_type.compare("and") == 0);
-    assert(sim1.instructions[6].instruction_type.compare("beq") == 0);
-    assert(sim1.instructions[7].instruction_type.compare("bne") == 0);
-    assert(sim1.instructions[0].read_reg1 == &sim1.zero);
-    assert(sim1.instructions[2].read_reg1 == sim1.saved_reg);
-    assert(sim1.instructions[6].read_reg1 == sim1.temp_reg+3);
+    assert(sim1.instructions[0]->instruction_type.compare("or") == 0);
+    assert(sim1.instructions[1]->instruction_type.compare("or") == 0);
+    assert(sim1.instructions[2]->instruction_type.compare("add") == 0);
+    assert(sim1.instructions[3]->instruction_type.compare("add") == 0);
+    assert(sim1.instructions[4]->instruction_type.compare("and") == 0);
+    assert(sim1.instructions[5]->instruction_type.compare("and") == 0);
+    assert(sim1.instructions[6]->instruction_type.compare("beq") == 0);
+    assert(sim1.instructions[7]->instruction_type.compare("bne") == 0);
+    assert(sim1.instructions[0]->read_reg1 == &sim1.zero);
+    assert(sim1.instructions[2]->read_reg1 == &sim1.saved_reg[0]);
+    assert(sim1.instructions[6]->read_reg1 == &sim1.temp_reg[3]);
+}
+
+void testPrint(){
+    Simulation sim(false);
+    std::string instructions[10];
+    instructions[0] = "ori $s1,$zero,451";
+    sim.parseInstructions(instructions, 1);
+    sim.putInUsed(0);
+    //sim.usedInstruction[0]->insert_stalls(2);
+    sim.printActive();
 }

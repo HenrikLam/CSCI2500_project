@@ -122,4 +122,17 @@ int main (){
     inst7.evaluate();
     inst7.writeBack();
     assert(write.value == 34);
+
+    line = "copy test";
+    addInstruction inst8(&read1, &read2, &write, line);
+    read1.setValue(4);
+    read2.setForwardValue(5);
+    inst8.insert_stalls(2);
+    inst8.evaluate();
+    inst8.writeBack();
+    addInstruction inst9 = *inst8.copyInstruction();
+    int result = inst8.write_reg->value;
+    inst9.evaluate();
+    inst9.writeBack();
+    assert(inst9.write_reg->value == result);
 }
