@@ -74,6 +74,7 @@ private:
 public:
     bool forward;
     int cycle_count = 0;
+    int statement_index = 0;
     Register saved_reg[SAVED_REG_SIZE];
     Register temp_reg[TEMP_REG_SIZE];
     // register for storing 1 or 0 for beq and bne
@@ -152,8 +153,17 @@ public:
         printReg();
     }
     void simulate(){
+        putInUsed(statement_index);
+        if (stage1.fetchInstruction(statement_index)) {
+            statement_index++;
+        }
+        stage1.execute();
+        if(stage1.shouldJump()) {
+            std::string label = stage1.getJumpLabel();
+            statement_index = label_map[label];
+        }
         if (cycle_count == 16) return;
-        
+        cycle_count++;
         simulate();
     }
 };

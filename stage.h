@@ -58,8 +58,12 @@ public:
     std::string getJumpLabel(){
         return next->getJumpLabel();
     }
-    void fetchInstruction(int index){
+    bool fetchInstruction(int index){
         instruction_index = index;
+        if (!(next->stalled)) {
+            return (instructions[index] != NULL);
+        }
+        return false;
     }
     // only execute if no stalls, checked in simulation class
     void execute(){
