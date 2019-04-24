@@ -63,6 +63,7 @@ public:
     }
     // only execute if no stalls, checked in simulation class
     void execute(){
+        if(next->stalled) {return;}
         next->execute();
         if (shouldJump()){
             flushAll;
@@ -81,6 +82,7 @@ class IDStage: public stage{
 private:
     int checkForStall(){
         if (inst.size() > 0){
+            stalled = false;
             return false;
         }
         int stall_count = 0;
@@ -92,10 +94,13 @@ private:
         if (current_instruction->read_reg2->usedFlag == true && current_instruction->read_reg1->forwarded == true){
             stall_count++;
         }
+        stalled = (stall_count == 0) ? false : true;
         return stall_count;
     }
 public:
+    bool stalled;
     IDStage(std::vector<instruction*>& i, bool f, stage* id){
+        stalled = false;
         inst = i;
         forward = f;
         next = id;

@@ -272,7 +272,7 @@ public:
 class labelInstruction: public instruction{
 public:
     labelInstruction(Register* rr1, Register* rr2, Register* wr, std::string& instruction_str){
-        instruction_type = "label:" + instruction_str;
+        instruction_type = instruction_str;
         line = instruction_str;
         read_reg1 = rr1;
         read_reg2 = rr2;
