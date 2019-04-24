@@ -62,9 +62,9 @@ private:
         } else if (instruction.find("slt") != std::string::npos){
             return sltInstruction(read1, read2, write, instruction);
         } else if (instruction.find("beq") != std::string::npos){
-            return beqInstruction(read1, read2, &flag, instruction);
+            return beqInstruction(read1, read2, &jump_flag, instruction);
         } else if (instruction.find("bne") != std::string::npos){
-            return bneInstruction(read1, read2, &flag, instruction);
+            return bneInstruction(read1, read2, &jump_flag, instruction);
         } else{
             throw std::runtime_error("Instruction type not supported");
         }
@@ -74,7 +74,7 @@ public:
     Register saved_reg[7];
     Register temp_reg[10];
     // register for storing 1 or 0 for beq and bne
-    Register flag;
+    Register jump_flag;
     Register zero;
     std::vector<instruction> usedInstruction;
     instruction instructions[10];
@@ -116,6 +116,9 @@ public:
             }
             instruction_index++;
         }
+    }
+    void beginSimulation(){
+        
     }
 };
 

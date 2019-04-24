@@ -23,9 +23,10 @@ protected:
     }
     void flush(){
         instruction_index = -1;
+        inst[instruction_index].terminate();
     }
     void flushAll(){
-        instruction_index = -1;
+        flush();
         if (next != NULL){
             next->flushAll();
         }
