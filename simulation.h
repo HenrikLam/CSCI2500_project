@@ -169,5 +169,4 @@ public:
         simulate();
     }
 };
-
 #endif
