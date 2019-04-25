@@ -60,8 +60,8 @@ public:
         return next->getJumpLabel();
     }
     bool fetchInstruction(int index){
-        instruction_index = index;
-        if (!(next->stalled)) {
+        if (!(next->stalled) && index < inst->size()) {
+            instruction_index = index;
             return true;//(inst[index] != NULL);
         }
         return false;

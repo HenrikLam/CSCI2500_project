@@ -153,7 +153,8 @@ public:
         printReg();
     }
     void simulate(){
-        putInUsed(statement_index);
+        if (statement_index < instruction_count)
+            putInUsed(statement_index);
         if (stage1->fetchInstruction(statement_index)) {
             statement_index++;
         }
