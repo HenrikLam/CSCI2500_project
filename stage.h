@@ -18,12 +18,12 @@ protected:
     }
     // updates the output of the simulation
     void updateOutput(){
-        if (inst.size() > 0 || instruction_index == -1) return;
-        inst[instruction_index]->mark_cycle(cycle_count, stage_name);
+        if (inst->size() == 0 || instruction_index == -1) return;
+        (*inst)[instruction_index]->mark_cycle(cycle_count, stage_name);
     }
     void flush(){
         instruction_index = -1;
-        inst[instruction_index]->terminate();
+        (*inst)[instruction_index]->terminate();
     }
     void flushAll(){
         flush();
@@ -32,22 +32,23 @@ protected:
         }
     }
 public:
+    bool stalled = false;
     virtual bool shouldJump() = 0;
     virtual std::string getJumpLabel() = 0;
     std::string stage_name;
     int cycle_count = 0;
-    std::vector<instruction*> inst;
+    std::vector<instruction*>* inst;
     // -1 is special value for no instruction currently in the stage
     int instruction_index = -1;
     bool forward;
     stage* next;
-    void execute();
+    virtual void execute() = 0;
 };
 
 class IFStage: public stage{
 public:
     IFStage(std::vector<instruction*>& i, bool f, stage* id){
-        inst = i;
+        inst = &i;
         forward = f;
         next = id;
         stage_name = "IF";
@@ -61,21 +62,21 @@ public:
     bool fetchInstruction(int index){
         instruction_index = index;
         if (!(next->stalled)) {
-            return (instructions[index] != NULL);
+            return true;//(inst[index] != NULL);
         }
         return false;
     }
     // only execute if no stalls, checked in simulation class
     void execute(){
+        updateOutput();
         if(next->stalled) {return;}
         next->execute();
         if (shouldJump()){
-            flushAll;
+            flushAll();
         }
-        if (inst.size() > 0 && instruction_index != -1){
+        if (inst->size() > 0 && instruction_index != -1){
             passInstruction();
         }
-        updateOutput();
         cycle_count++;
     }
     
@@ -85,13 +86,13 @@ public:
 class IDStage: public stage{
 private:
     int checkForStall(){
-        if (inst.size() > 0){
+        if (inst->size() > 0){
             stalled = false;
             return false;
         }
         int stall_count = 0;
         if (instruction_index == -1) return stall_count;
-        instruction* current_instruction = inst[instruction_index];
+        instruction* current_instruction = (*inst)[instruction_index];
         if (current_instruction->read_reg1->usedFlag == true && current_instruction->read_reg1->forwarded == false){
             stall_count++;
         } 
@@ -102,10 +103,9 @@ private:
         return stall_count;
     }
 public:
-    bool stalled;
     IDStage(std::vector<instruction*>& i, bool f, stage* id){
         stalled = false;
-        inst = i;
+        inst = &i;
         forward = f;
         next = id;
         stage_name = "ID";
@@ -119,12 +119,12 @@ public:
     // check for stall, if needs to be stalled, don't pass the instruction to the next stage
     void execute(){
         next->execute();
-        if (inst.size() > 0 && instruction_index != -1){
+        if (inst->size() > 0 && instruction_index != -1){
             int stall_count = checkForStall();
             if (stall_count == 0){
                 passInstruction();
             } else {
-                inst[instruction_index]->insert_stalls(stall_count);
+                (*inst)[instruction_index]->insert_stalls(stall_count);
             }
         }
         updateOutput();
@@ -135,7 +135,7 @@ public:
 class EXEStage: public stage{
 public:
     EXEStage(std::vector<instruction*>& i, bool f, stage* id){
-        inst = i;
+        inst = &i;
         forward = f;
         next = id;
         stage_name = "EXE";
@@ -148,8 +148,8 @@ public:
     }
     void execute(){
         next->execute();
-        if (inst.size() > 0 && instruction_index != -1){
-            inst[instruction_index]->evaluate();
+        if (inst->size() > 0 && instruction_index != -1){
+            (*inst)[instruction_index]->evaluate();
             passInstruction();
         }
         updateOutput();
@@ -160,7 +160,7 @@ public:
 class MEMStage: public stage{
 public:
     MEMStage(std::vector<instruction*>& i, bool f, stage* id){
-        inst = i;
+        inst = &i;
         forward = f;
         next = id;
         stage_name = "MEM";
@@ -174,9 +174,9 @@ public:
     // if forward flag is set the instruction will forward the evaluated result
     void execute(){
         next->execute();
-        if (inst.size() > 0 && instruction_index != -1){
+        if (inst->size() > 0 && instruction_index != -1){
             if (forward){
-                inst[instruction_index]->forward();
+                (*inst)[instruction_index]->forward();
             }
             passInstruction();
         }
@@ -190,7 +190,7 @@ public:
     bool jump = false;
     std::string jumpLabel = "";
     WBStage(std::vector<instruction*>& i, bool f, stage* id){
-        inst = i;
+        inst = &i;
         forward = f;
         next = id;
         stage_name = "WB";
@@ -203,8 +203,8 @@ public:
     }
     // if forward flag is set the instruction will forward the evaluated result
     void execute(){
-        if (inst.size() > 0 && instruction_index != -1){
-            inst[instruction_index]->writeBack();
+        if (inst->size() > 0 && instruction_index != -1){
+            (*inst)[instruction_index]->writeBack();
         }
         updateOutput();
         cycle_count++;

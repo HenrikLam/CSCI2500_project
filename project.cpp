@@ -21,4 +21,7 @@ int main(int argc, char* argv[]){
         }
         input_file.close();
     }
+    Simulation s(forwarding);
+    s.parseInstructions(instructions, instruction_count);
+    s.simulate();
 }

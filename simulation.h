@@ -38,20 +38,19 @@ private:
         }
 
         index = instruction.find("$",index+1);
-        if (instruction.find("$zero",index) == index){
-            read2 = &zero;
-        } else {
-            if (index != -1){
-                if (instruction[index+1] == 's'){
-                    read2 = &(saved_reg[instruction[index+2] - '0']);
-                } else {
-                    read2 = &(temp_reg[instruction[index+2] - '0']);
-                }
-            } else {
+        if(index==-1) {
                 index = instruction.find_last_of(",");
                 int i_value = std::stoi(instruction.substr(index + 1));
                 read2 = new Register();
                 read2->value = i_value;
+            }
+        else if (instruction.find("$zero",index) == index){
+            read2 = &zero;
+        } else {
+            if (instruction[index+1] == 's'){
+                read2 = &(saved_reg[instruction[index+2] - '0']);
+            } else {
+                read2 = &(temp_reg[instruction[index+2] - '0']);
             }
         }
         
@@ -96,6 +95,7 @@ public:
         zero.value = 0;
         forward = f;
         instruction_count = 0;
+        usedInstruction = std::vector<instruction*>();
         WBStage* stage5 = new WBStage(usedInstruction, f, NULL);
         MEMStage* stage4 = new MEMStage(usedInstruction, f, stage5);
         EXEStage* stage3 = new EXEStage(usedInstruction, f, stage4);
@@ -154,16 +154,17 @@ public:
     }
     void simulate(){
         putInUsed(statement_index);
-        if (stage1.fetchInstruction(statement_index)) {
+        if (stage1->fetchInstruction(statement_index)) {
             statement_index++;
         }
-        stage1.execute();
-        if(stage1.shouldJump()) {
-            std::string label = stage1.getJumpLabel();
+        stage1->execute();
+        if(stage1->shouldJump()) {
+            std::string label = stage1->getJumpLabel();
             statement_index = label_map[label];
         }
-        if (cycle_count == 16) return;
+        if (cycle_count == 15) return;
         cycle_count++;
+        printActive();
         simulate();
     }
 };

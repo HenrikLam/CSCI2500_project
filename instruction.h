@@ -64,13 +64,13 @@ public:
     }
     void mark_cycle(int cycle, std::string stage_id){
         if (!suspended)
-            output[0][cycle-1] = stage_id;
+            output[0][cycle] = stage_id;
         else
-            output[0][cycle-1] = '*';
+            output[0][cycle] = '*';
     }
     void advance_stalls(int cycle){
         for (int i = 1; i <= stalls; i++){
-            output[i][cycle-1] = "*";
+            output[i][cycle] = "*";
         }
     }
     void print_instruction(){
@@ -81,7 +81,7 @@ public:
             }
             std::cout << "\n";
         }
-        std::cout << std::setw(20) << std::left << line;
+        std::cout << std::left << std::setw(20) << line;
         for (int i = 0; i < MAX_CYCLE; i++){
             std::cout << std::setw(4) << output[0][i];
         }
