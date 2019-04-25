@@ -84,9 +84,9 @@ public:
 class IDStage: public stage{
 private:
     int checkForStall(){
-        if (inst->size() > 0){
+        if (inst->size() == 0){
             stalled = false;
-            return false;
+            return 0;
         }
         int stall_count = 0;
         if (instruction_index == -1) return stall_count;
@@ -117,13 +117,14 @@ public:
     // check for stall, if needs to be stalled, don't pass the instruction to the next stage
     void execute(){
         next->execute();
+        updateOutput();
         int stall_count = checkForStall();
-        if (stall_count == 0){
+        if (stall_count == 0 && instruction_index != -1){
+            (*inst)[instruction_index]->write_reg->usedFlag = true;
             passInstruction();
-        } else {
+        } else if (instruction_index != -1){
             (*inst)[instruction_index]->insert_stalls(stall_count);
         }
-        updateOutput();
         cycle_count++;
     }
 };
@@ -144,10 +145,11 @@ public:
     }
     void execute(){
         next->execute();
-        if (instruction_index != -1)
+        if (instruction_index != -1){
             (*inst)[instruction_index]->evaluate();
-        passInstruction();
+        }
         updateOutput();
+        passInstruction();
         cycle_count++;
     }
 };
@@ -168,12 +170,12 @@ public:
     }
     // if forward flag is set the instruction will forward the evaluated result
     void execute(){
+        updateOutput();
         next->execute();
         if (forward && instruction_index != -1){
             (*inst)[instruction_index]->forward();
         }
         passInstruction();
-        updateOutput();
         cycle_count++;
     }
 };
@@ -196,8 +198,10 @@ public:
     }
     // if forward flag is set the instruction will forward the evaluated result
     void execute(){
-        if (instruction_index != -1)
+        if (instruction_index != -1){
+            (*inst)[instruction_index]->write_reg->usedFlag = false;
             (*inst)[instruction_index]->writeBack();
+        }
         updateOutput();
         cycle_count++;
     }
