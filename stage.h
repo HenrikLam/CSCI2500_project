@@ -69,12 +69,13 @@ public:
     // only execute if no stalls, checked in simulation class
     void execute(){
         updateOutput();
-        if(next->stalled) {return;}
-        next->execute();
-        if (shouldJump()){
-            flushAll();
+        if(!(next->stalled)) {
+            next->execute();
+            if (shouldJump()){
+                flushAll();
+            }
+            passInstruction();
         }
-        passInstruction();
         cycle_count++;
     }
     
@@ -85,7 +86,6 @@ class IDStage: public stage{
 private:
     int checkForStall(){
         if (inst->size() == 0){
-            stalled = false;
             return 0;
         }
         int stall_count = 0;
@@ -94,10 +94,9 @@ private:
         if (current_instruction->read_reg1->usedFlag == true && current_instruction->read_reg1->forwarded == false){
             stall_count++;
         } 
-        if (current_instruction->read_reg2->usedFlag == true && current_instruction->read_reg1->forwarded == true){
+        if (current_instruction->read_reg2->usedFlag == true && current_instruction->read_reg2->forwarded == false){
             stall_count++;
         }
-        stalled = (stall_count == 0) ? false : true;
         return stall_count;
     }
 public:
@@ -122,8 +121,10 @@ public:
         if (stall_count == 0 && instruction_index != -1){
             (*inst)[instruction_index]->write_reg->usedFlag = true;
             passInstruction();
+            stalled = false;
         } else if (instruction_index != -1){
             (*inst)[instruction_index]->insert_stalls(stall_count);
+            stalled = true;
         }
         cycle_count++;
     }
@@ -170,8 +171,8 @@ public:
     }
     // if forward flag is set the instruction will forward the evaluated result
     void execute(){
-        updateOutput();
         next->execute();
+        updateOutput();
         if (forward && instruction_index != -1){
             (*inst)[instruction_index]->forward();
         }
@@ -200,7 +201,12 @@ public:
     void execute(){
         if (instruction_index != -1){
             (*inst)[instruction_index]->write_reg->usedFlag = false;
+            (*inst)[instruction_index]->write_reg->forwarded = false;
             (*inst)[instruction_index]->writeBack();
+            if ((*inst)[instruction_index]->line.find(":") != std::string::npos){
+                jump = true;
+                jumpLabel = (*inst)[instruction_index]->line;
+            }
         }
         updateOutput();
         cycle_count++;
