@@ -74,9 +74,7 @@ public:
         if (shouldJump()){
             flushAll();
         }
-        if (inst->size() > 0 && instruction_index != -1){
-            passInstruction();
-        }
+        passInstruction();
         cycle_count++;
     }
     
@@ -119,13 +117,11 @@ public:
     // check for stall, if needs to be stalled, don't pass the instruction to the next stage
     void execute(){
         next->execute();
-        if (inst->size() > 0 && instruction_index != -1){
-            int stall_count = checkForStall();
-            if (stall_count == 0){
-                passInstruction();
-            } else {
-                (*inst)[instruction_index]->insert_stalls(stall_count);
-            }
+        int stall_count = checkForStall();
+        if (stall_count == 0){
+            passInstruction();
+        } else {
+            (*inst)[instruction_index]->insert_stalls(stall_count);
         }
         updateOutput();
         cycle_count++;
@@ -148,10 +144,9 @@ public:
     }
     void execute(){
         next->execute();
-        if (inst->size() > 0 && instruction_index != -1){
+        if (instruction_index != -1)
             (*inst)[instruction_index]->evaluate();
-            passInstruction();
-        }
+        passInstruction();
         updateOutput();
         cycle_count++;
     }
@@ -174,12 +169,10 @@ public:
     // if forward flag is set the instruction will forward the evaluated result
     void execute(){
         next->execute();
-        if (inst->size() > 0 && instruction_index != -1){
-            if (forward){
-                (*inst)[instruction_index]->forward();
-            }
-            passInstruction();
+        if (forward && instruction_index != -1){
+            (*inst)[instruction_index]->forward();
         }
+        passInstruction();
         updateOutput();
         cycle_count++;
     }
@@ -203,9 +196,8 @@ public:
     }
     // if forward flag is set the instruction will forward the evaluated result
     void execute(){
-        if (inst->size() > 0 && instruction_index != -1){
+        if (instruction_index != -1)
             (*inst)[instruction_index]->writeBack();
-        }
         updateOutput();
         cycle_count++;
     }
