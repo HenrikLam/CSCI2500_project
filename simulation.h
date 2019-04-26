@@ -87,6 +87,11 @@ public:
     instruction* instructions[10];
     int instruction_count;
     IFStage* stage1;
+    IDStage* stage2;
+    EXEStage* stage3;
+    MEMStage* stage4;
+    WBStage* stage5;
+
     // maps the label to the instruction line it is leading to
     std::map<std::string, int> label_map;
     Simulation(bool f){
@@ -100,10 +105,10 @@ public:
         forward = f;
         instruction_count = 0;
         usedInstruction = std::vector<instruction*>();
-        WBStage* stage5 = new WBStage(usedInstruction, f, NULL);
-        MEMStage* stage4 = new MEMStage(usedInstruction, f, stage5);
-        EXEStage* stage3 = new EXEStage(usedInstruction, f, stage4);
-        IDStage* stage2 = new IDStage(usedInstruction, f, stage3);
+        stage5 = new WBStage(usedInstruction, f, NULL);
+        stage4 = new MEMStage(usedInstruction, f, stage5);
+        stage3 = new EXEStage(usedInstruction, f, stage4);
+        stage2 = new IDStage(usedInstruction, f, stage3);
         stage1 = new IFStage(usedInstruction, f, stage2);
     }
     void putInUsed(int index){
@@ -138,14 +143,14 @@ public:
         int counter = 1;
         std::string printstr = "";
         for (int i = 0; i < SAVED_REG_SIZE; i++){
-            printstr = "$s" + std::to_string(i) + "=" + std::to_string(saved_reg[i].value);
-            std::cout << std::setw(20) << std::left << printstr;//<< "$s" << i << " = " << saved_reg[i].value;
+            printstr = "$s" + std::to_string(i) + " = " + std::to_string(saved_reg[i].value);
+            std::cout << std::setw(20) << std::left << printstr;
             if (counter % 4 == 0) std::cout << "\n";
             counter++;
         }
         for (int i = 0; i < TEMP_REG_SIZE; i++){
-            printstr = "$t" + std::to_string(i) + "=" + std::to_string(saved_reg[i].value);
-            std::cout << "$t" << i << " = " << std::setw(20) << std::left << temp_reg[i].value;
+            printstr = "$t" + std::to_string(i) + " = " + std::to_string(temp_reg[i].value);
+            std::cout << std::setw(20) << std::left << printstr;
             if (counter % 4 == 0) std::cout << "\n";
             counter++;
         }
@@ -170,9 +175,14 @@ public:
             std::string label = stage1->getJumpLabel();
             statement_index = label_map[label];
         }
+        bool done = stage1->instruction_index == -1 && stage2->instruction_index == -1 && 
+            stage3->instruction_index == -1 && stage4->instruction_index == -1
+            && stage5->instruction_index == -1;
+        //stage5->instruction_index = -1;
         if (cycle_count == 15) return;
         cycle_count++;
         printActive();
+        if(done) return;
         simulate();
     }
 };
