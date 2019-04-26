@@ -141,7 +141,7 @@ public:
         write_reg = other.write_reg;
     }
     void evaluate(){
-        evaluatedValue = (!!(read_reg1->getValue())) & (!!(read_reg2->getValue()));
+        evaluatedValue = ((read_reg1->getValue())) & ((read_reg2->getValue()));
     }
     virtual andInstruction* copyInstruction(){
         return new andInstruction(*this);
@@ -169,7 +169,7 @@ public:
         write_reg = other.write_reg;
     }
     void evaluate(){
-        evaluatedValue = (!!(read_reg1->getValue())) | (!!(read_reg2->getValue()));
+        evaluatedValue = ((read_reg1->getValue())) | ((read_reg2->getValue()));
     }
     virtual orInstruction* copyInstruction(){
         return new orInstruction(*this);
