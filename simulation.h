@@ -136,12 +136,15 @@ public:
     }
     void printReg(){
         int counter = 1;
+        std::string printstr = "";
         for (int i = 0; i < SAVED_REG_SIZE; i++){
-            std::cout << std::setw(20) << std::left << "$s" << i << " = " << saved_reg[i].value;
+            printstr = "$s" + std::to_string(i) + "=" + std::to_string(saved_reg[i].value);
+            std::cout << std::setw(20) << std::left << printstr;//<< "$s" << i << " = " << saved_reg[i].value;
             if (counter % 4 == 0) std::cout << "\n";
             counter++;
         }
         for (int i = 0; i < TEMP_REG_SIZE; i++){
+            printstr = "$t" + std::to_string(i) + "=" + std::to_string(saved_reg[i].value);
             std::cout << "$t" << i << " = " << std::setw(20) << std::left << temp_reg[i].value;
             if (counter % 4 == 0) std::cout << "\n";
             counter++;
