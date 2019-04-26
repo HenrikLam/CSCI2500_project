@@ -148,13 +148,14 @@ public:
             else {std::cout << printstr << "\n";}
             counter++;
         }
-        for (int i = 0; i < TEMP_REG_SIZE; i++){
+        for (int i = 0; i < TEMP_REG_SIZE-1; i++){
             printstr = "$t" + std::to_string(i) + " = " + std::to_string(temp_reg[i].value);
             if(counter%4!=0) {std::cout << std::setw(20) << std::left << printstr;}
             else {std::cout << printstr << "\n";}
             counter++;
         }
-        std::cout << "\n";
+        printstr = "$t" + std::to_string(TEMP_REG_SIZE-1) + " = " + std::to_string(temp_reg[TEMP_REG_SIZE-1].value);
+        std::cout << printstr << "\n";
     }
     void printActive(){
         std::cout << "----------------------------------------------------------------------------------\n"
@@ -162,6 +163,7 @@ public:
         for (unsigned int i = 0; i < usedInstruction.size(); i++){
             usedInstruction[i]->print_instruction();
         }
+        std::cout<<"\n";
         printReg();
     }
     void simulate(){
