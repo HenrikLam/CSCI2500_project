@@ -14,6 +14,7 @@ class stage{
 protected:
     void passInstruction(){
         next->instruction_index = instruction_index;
+        next->stalled = stalled;
         instruction_index = -1;
     }
     // updates the output of the simulation
