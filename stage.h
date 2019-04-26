@@ -137,7 +137,7 @@ public:
         inst = &i;
         forward = f;
         next = id;
-        stage_name = "EXE";
+        stage_name = "EX";
     }
     bool shouldJump(){
         return next->shouldJump();

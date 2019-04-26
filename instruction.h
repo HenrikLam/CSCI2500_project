@@ -76,16 +76,16 @@ public:
     void print_instruction(){
         for (int i = 1; i <= stalls; i++){
             std::cout << std::left << std::setw(20) << "nop";
-            for (int j = 0; j < MAX_CYCLE; j++){
+            for (int j = 0; j < MAX_CYCLE-1; j++){
                 std::cout << std::setw(4) << output[i][j];
             }
-            std::cout << "\n";
+            std::cout << output[i][MAX_CYCLE-1]<< "\n";
         }
         std::cout << std::left << std::setw(20) << line;
-        for (int i = 0; i < MAX_CYCLE; i++){
+        for (int i = 0; i < MAX_CYCLE-1; i++){
             std::cout << std::setw(4) << output[0][i];
         }
-        std::cout << "\n";
+        std::cout << output[0][MAX_CYCLE-1] << "\n";
     }
     void terminate(){
         suspended = true;

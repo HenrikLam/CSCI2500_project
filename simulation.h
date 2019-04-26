@@ -144,14 +144,14 @@ public:
         std::string printstr = "";
         for (int i = 0; i < SAVED_REG_SIZE; i++){
             printstr = "$s" + std::to_string(i) + " = " + std::to_string(saved_reg[i].value);
-            std::cout << std::setw(20) << std::left << printstr;
-            if (counter % 4 == 0) std::cout << "\n";
+            if(counter%4!=0){std::cout << std::setw(20) << std::left << printstr;}
+            else {std::cout << printstr << "\n";}
             counter++;
         }
         for (int i = 0; i < TEMP_REG_SIZE; i++){
             printstr = "$t" + std::to_string(i) + " = " + std::to_string(temp_reg[i].value);
-            std::cout << std::setw(20) << std::left << printstr;
-            if (counter % 4 == 0) std::cout << "\n";
+            if(counter%4!=0) {std::cout << std::setw(20) << std::left << printstr;}
+            else {std::cout << printstr << "\n";}
             counter++;
         }
         std::cout << "\n";
