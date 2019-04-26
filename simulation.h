@@ -20,6 +20,7 @@ private:
         Register* write;
 
         int index = instruction.find("$");
+        unsigned int k = index;
         if (instruction[index+1] == 's'){
             write = &(saved_reg[instruction[index+2] - '0']);
         } else {
@@ -27,7 +28,8 @@ private:
         }
 
         index = instruction.find("$",index+1);
-        if (instruction.find("$zero",index) == index){
+        k=index;
+        if (instruction.find("$zero",index) == k){
             read1 = &zero;
         } else {
             if (instruction[index+1] == 's'){
@@ -38,13 +40,15 @@ private:
         }
 
         index = instruction.find("$",index+1);
+        k=index;
         if(index==-1) {
                 index = instruction.find_last_of(",");
+                k=index;
                 int i_value = std::stoi(instruction.substr(index + 1));
                 read2 = new Register();
                 read2->value = i_value;
             }
-        else if (instruction.find("$zero",index) == index){
+        else if (instruction.find("$zero",index) == k){
             read2 = &zero;
         } else {
             if (instruction[index+1] == 's'){
@@ -117,7 +121,7 @@ public:
         instruction_count = inst_count;
         int instruction_index = 0;
         for (int i = 0; i < inst_count; i++){
-            instruction** current_inst = instructions + i;
+            //instruction** current_inst = instructions + i;
             if (instruction_strings[i].find(":") != std::string::npos){
                 // label instruction
                 label_map[instruction_strings[i].substr(0,instruction_strings[i].length() -1)] = instruction_index;
@@ -133,7 +137,7 @@ public:
     void printReg(){
         int counter = 1;
         for (int i = 0; i < SAVED_REG_SIZE; i++){
-            std::cout << "$s" << i << " = " << std::setw(20) << std::left << saved_reg[i].value;
+            std::cout << std::setw(20) << std::left << "$s" << i << " = " << saved_reg[i].value;
             if (counter % 4 == 0) std::cout << "\n";
             counter++;
         }
@@ -147,7 +151,7 @@ public:
     void printActive(){
         std::cout << "----------------------------------------------------------------------------------\n"
                   << "CPU Cycles ===>     1   2   3   4   5   6   7   8   9   10  11  12  13  14  15  16\n";
-        for (int i = 0; i < usedInstruction.size(); i++){
+        for (unsigned int i = 0; i < usedInstruction.size(); i++){
             usedInstruction[i]->print_instruction();
         }
         printReg();

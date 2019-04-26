@@ -26,11 +26,11 @@ public:
             return value;
         }
     }
-    int setForwardValue (int v){
+    void setForwardValue (int v){
         forwarded = true;
         forwardedValue = v;
     }
-    int setValue(int v){
+    void setValue(int v){
         forwarded = false;
         value = v;
     }
