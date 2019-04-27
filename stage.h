@@ -25,13 +25,14 @@ protected:
         instruction_index = -1;
         (*inst)[instruction_index]->terminate();
     }
+    
+public:
     void flushAll(){
         flush();
         if (next != NULL){
             next->flushAll();
         }
     }
-public:
     bool stalled = false;
     virtual bool shouldJump() = 0;
     virtual std::string getJumpLabel() = 0;

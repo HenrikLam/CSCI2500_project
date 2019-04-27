@@ -17,10 +17,10 @@ void testParse(){
     instructions[2] = "addi $t2,$s0,73";
     instructions[3] = "add $t2,$s0,73";
     instructions[4] = "label:";
-    instructions[5] = "and $t3, $s0, $s1";
-    instructions[6] = "andi $t3, $s0, $s1";
-    instructions[7] = "beq $t3, $t3, label";
-    instructions[8] = "bne $t3, $zero, label";
+    instructions[5] = "and $t3,$s0,$s1";
+    instructions[6] = "andi $t3,$s0,$s1";
+    instructions[7] = "beq $t3,$t3,label";
+    instructions[8] = "bne $t3,$zero,label";
     int instruction_count = 9;
     Simulation sim1(false);
     sim1.parseInstructions(instructions, instruction_count);
