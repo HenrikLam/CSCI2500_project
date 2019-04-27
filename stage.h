@@ -22,8 +22,11 @@ protected:
         (*inst)[instruction_index]->mark_cycle(cycle_count, stage_name);
     }
     void flush(){
-        instruction_index = -1;
-        (*inst)[instruction_index]->terminate();
+        if(instruction_index!=-1) {
+            (*inst)[instruction_index]->terminate();
+            instruction_index = -1;
+        }
+        //(*inst)[instruction_index]->terminate();
     }
     
 public:
