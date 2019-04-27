@@ -63,10 +63,18 @@ public:
         }
     }
     void mark_cycle(int cycle, std::string stage_id){
-        if (!suspended)
+        if (!suspended){
             output[0][cycle] = stage_id;
+            for (int i = 1; i <= stalls; i++){
+                if (stage_id.compare("IF") == 0 || stage_id.compare("ID") == 0){
+                    output[i][cycle] = stage_id;
+                } else {
+                    output[i][cycle] = "*";
+                }
+            }
+        }
         else
-            output[0][cycle] = '*';
+            output[0][cycle] = '*'; 
     }
     void advance_stalls(int cycle){
         for (int i = 1; i <= stalls; i++){

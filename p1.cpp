@@ -27,5 +27,5 @@ int main(int argc, char* argv[]){
     std::cout<<"START OF SIMULATION ("<< str <<")\n";
     s.simulate();
     std::cout << "----------------------------------------------------------------------------------\n" 
-                << "END OF SIMULATION\n\n";
+                << "END OF SIMULATION\n";
 }

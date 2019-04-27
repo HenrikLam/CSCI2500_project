@@ -14,7 +14,6 @@ class stage{
 protected:
     void passInstruction(){
         next->instruction_index = instruction_index;
-        next->stalled = stalled;
         instruction_index = -1;
     }
     // updates the output of the simulation
@@ -44,6 +43,9 @@ public:
     bool forward;
     stage* next;
     virtual void execute() = 0;
+    virtual bool isStalled(){
+        return stalled;
+    }
 };
 
 class IFStage: public stage{
@@ -62,7 +64,7 @@ public:
     }
     bool fetchInstruction(int index){
         unsigned int x = index;
-        if (!(next->stalled) && x < inst->size()) {
+        if (!(next->isStalled()) && x < inst->size()) {
             instruction_index = index;
             return true;//(inst[index] != NULL);
         }
@@ -71,8 +73,8 @@ public:
     // only execute if no stalls, checked in simulation class
     void execute(){
         updateOutput();
-        if(!(next->stalled)) {
-            next->execute();
+        next->execute();
+        if(!(next->isStalled())) {
             if (shouldJump()){
                 flushAll();
             }
@@ -102,6 +104,10 @@ private:
         return stall_count;
     }
 public:
+    bool stalled;
+    bool isStalled(){
+        return stalled;
+    }
     IDStage(std::vector<instruction*>& i, bool f, stage* id){
         stalled = false;
         inst = &i;
@@ -127,6 +133,8 @@ public:
         } else if (instruction_index != -1){
             (*inst)[instruction_index]->insert_stalls(stall_count);
             stalled = true;
+        } else {
+            stalled = false;
         }
         cycle_count++;
     }

@@ -103,8 +103,8 @@ int main (){
     line = "print test";
     addInstruction inst6(&read1, &read2, &write, line);
     
-    inst6.mark_cycle(1, "ID");
-    inst6.mark_cycle(2, "IF");
+    inst6.mark_cycle(1, "IF");
+    inst6.mark_cycle(2, "ID");
     inst6.insert_stalls(2);
     inst6.mark_cycle(3, "EXE");
     inst6.advance_stalls(3);
@@ -135,4 +135,6 @@ int main (){
     inst9.evaluate();
     inst9.writeBack();
     assert(inst9.write_reg->value == result);
+    inst8.mark_cycle(0, "EXE");
+    inst8.print_instruction();
 }
