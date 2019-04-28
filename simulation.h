@@ -179,8 +179,65 @@ public:
         std::cout<<"\n";
         printReg();
     }
+    std::string WBExecute() {
+        stage5->markCycle();
+        stage5->writeBack();
+        std::string lab = getBranchLabel();
+        if(lab.compare("")!=0) {
+            if(stage4->instruction_index!=-1) (*(stage4->inst)[stage4->instruction_index]).suspend();
+            if(stage3->instruction_index!=-1) (*(stage3->inst)[stage3->instruction_index]).suspend();
+            if(stage2->instruction_index!=-1) (*(stage2->inst)[stage2->instruction_index]).suspend();
+            if(stage1->instruction_index!=-1) (*(stage1->inst)[stage1->instruction_index]).suspend();
+        }
+        *(stage4->inst)[stage4->instruction_index]->write_reg->usedFlag=false;
+        stage5->passInstruction();
+        stage5->current_cycle++;
+        return lab;
+    }
+    void EXExecute() {
+        stage3->markCycle();
+        stage3->executeInstruction();
+        stage3->forward();
+        stage3->passInstruction();
+        stage3->current_cycle++;
+    }
+    void IDExecute() {
+        stage2->markCycle();
+        if(*(stage2->inst)[stage2->instruction_index]->suspended) {
+            stage2->passInstruction();
+        }
+        else {
+            stage2->markAsUsed();
+            if(!(stage2->insert_stalls(stage2->checkStalls()))) {
+                stage2->passInstruction();
+            }
+        }
+        stage2->current_cycle++;
+    }
     void simulate(){
-        
+        putInUsed(statement_to_pass);
+        if(stage1->fetchInstruction(statement_index)) {
+            statement_index++;
+            statement_to_pass++;
+        }
+        std::string lab = WBExecute();
+        stage4->markCycle();
+        stage4->passInstruction();
+        stage4->current_cycle++;
+        EXExecute();
+        IDExecute();
+        stage1->markCycle();
+        stage1->passInstruction();
+        stage1->current_cycle++;
+        if(lab.compare("") != 0) {
+            statement_to_pass = label_map[lab];
+        }
+        printActive();
+        cycle_count++;
+        bool done = stage1->instruction_index == -1 && stage2->instruction_index == -1 && 
+            stage3->instruction_index == -1 && stage4->instruction_index == -1
+            && stage5->instruction_index == -1;
+        if(done || cycle_count==15) {return;}
         simulate();
     }
 };
