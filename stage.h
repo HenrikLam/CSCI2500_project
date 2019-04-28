@@ -142,6 +142,9 @@ public:
 class IDStage: public stage{
 public:
     EXStage* next;
+    bool isStalled(){
+        return nop_vector->size() != 0;
+    }
     int checkStalls(){
         if (instruction_index == -1) return 0;
         int stall_count = 0;

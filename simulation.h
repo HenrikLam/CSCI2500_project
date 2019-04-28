@@ -223,23 +223,53 @@ public:
         stage2->current_cycle++;
     }
     void simulate(){
-        putInUsed(statement_to_pass);
-        if(stage1->fetchInstruction(statement_index)) {
+        if (statement_to_pass < instruction_count){
+            putInUsed(statement_to_pass);
+            statement_to_pass++;
+        }
+        if(statement_index < usedInstruction.size() && stage1->fetchInstruction(statement_index)) {
             statement_index++;
-            statement_to_pass++;
         }
-        std::string lab = WBExecute();
-        stage4->markCycle();
-        stage4->passInstruction();
-        stage4->current_cycle++;
-        EXExecute();
-        IDExecute();
         stage1->markCycle();
-        stage1->passInstruction();
-        stage1->current_cycle++;
-        if(lab.compare("") != 0) {
-            statement_to_pass++;
+        stage2->markCycle();
+        stage3->markCycle();
+        stage4->markCycle();
+        stage5->markCycle();
+
+        stage5->writeBack();
+
+        stage4->passInstruction();
+
+        stage3->executeInstruction();
+        if (forward)
+            stage3->forward();
+        stage3->passInstruction();
+
+        int stalls_num = stage2->checkStalls();
+        if (stalls_num != 0 && !stage2->isStalled()){
+            int stage2_inst_index = stage2->instruction_index;
+            stage2->insert_stalls(stalls_num);
+            for (int i = 0; i < stalls_num; i++){
+                usedInstruction.insert(usedInstruction.begin()+stalls_num, &((*stage2->nop_vector)[i]));
+            }
+            statement_index += stalls_num;
+            stage2->instruction_index += stalls_num;
+            //stage3->instruction_index += stalls_num;
+            //stage4->instruction_index += stalls_num;
+            //stage5->instruction_index += stalls_num;
+            //stage1->instruction_index += stalls_num;
+        } else if (stalls_num == 0){
+            stage2->markAsUsed();
+            stage2->passInstruction();
         }
+        stage1->passInstruction();
+
+        stage1->current_cycle++;
+        stage2->current_cycle++;
+        stage3->current_cycle++;
+        stage4->current_cycle++;
+        stage5->current_cycle++;
+
         printActive();
         cycle_count++;
         bool done = stage1->instruction_index == -1 && stage2->instruction_index == -1 && 
