@@ -68,10 +68,7 @@ public:
         instruction_index = index;
         return true;
     }
-    void forward(){
-        if (instruction_index == -1) return;
-        (*inst)[instruction_index]->forward();
-    }
+    
     bool passInstruction(){
         if (next->fetchInstruction(instruction_index)){
             instruction_index = -1;
@@ -105,6 +102,11 @@ public:
         if (instruction_index == -1) return;
         (*inst)[instruction_index]->evaluate();
         (*inst)[instruction_index]->write_reg->usedFlag = true;
+    }
+
+    void forward(){
+        if (instruction_index == -1) return;
+        (*inst)[instruction_index]->forward();
     }
 
     bool passInstruction(){
