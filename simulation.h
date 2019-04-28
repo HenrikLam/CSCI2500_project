@@ -110,10 +110,15 @@ public:
         instruction_count = 0;
         usedInstruction = std::vector<instruction*>();
         stage5 = new WBStage(usedInstruction);
+        stage5->next=NULL;
         stage4 = new MEMStage(usedInstruction);
+        stage4->next=stage5;
         stage3 = new EXStage(usedInstruction);
+        stage3->next=stage4;
         stage2 = new IDStage(usedInstruction);
+        stage2->next=stage3;
         stage1 = new IFStage(usedInstruction);
+        stage1->next=stage2;
     }
     void putInUsed(int index){
         usedInstruction.push_back(instructions[index]->copyInstruction());
