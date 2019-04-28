@@ -25,7 +25,8 @@ public:
         else
             (*inst)[instruction_index]->mark_cycle(current_cycle, "*");
         for (unsigned int i = 0; i < nop_vector->size(); i++){
-            (*nop_vector)[i].mark_cycle(current_cycle, "*");
+            if ((*nop_vector)[i].edits < 5)
+                (*nop_vector)[i].mark_cycle(current_cycle, "*");
         }
     }
     bool fetchInstruction(int index){
@@ -35,6 +36,7 @@ public:
     void writeBack(){
         if (instruction_index == -1) return;
         (*inst)[instruction_index]->writeBack();
+        (*inst)[instruction_index]->write_reg->usedFlag = false;
     }
     bool passInstruction(){
         instruction_index = -1;
@@ -67,7 +69,8 @@ public:
         else
             (*inst)[instruction_index]->mark_cycle(current_cycle, "*");
         for (unsigned int i = 0; i < nop_vector->size(); i++){
-            (*nop_vector)[i].mark_cycle(current_cycle, "*");
+            if ((*nop_vector)[i].edits < 5)
+                (*nop_vector)[i].mark_cycle(current_cycle, "*");
         }
     }
     bool fetchInstruction(int index){
@@ -98,7 +101,8 @@ public:
         else
             (*inst)[instruction_index]->mark_cycle(current_cycle, "*");
         for (unsigned int i = 0; i < nop_vector->size(); i++){
-            (*nop_vector)[i].mark_cycle(current_cycle, "*");
+            if ((*nop_vector)[i].edits < 5)
+                (*nop_vector)[i].mark_cycle(current_cycle, "*");
         }
     }
 
@@ -141,10 +145,10 @@ public:
     int checkStalls(){
         if (instruction_index == -1) return 0;
         int stall_count = 0;
-        if (!(*inst)[instruction_index]->read_reg1->usedFlag && !(*inst)[instruction_index]->read_reg1->forwarded){
+        if ((*inst)[instruction_index]->read_reg1->usedFlag && !(*inst)[instruction_index]->read_reg1->forwarded){
             stall_count++;
         }
-        if (&(*inst)[instruction_index]->read_reg1 != &(*inst)[instruction_index]->read_reg2 && !(*inst)[instruction_index]->read_reg2->usedFlag && !(*inst)[instruction_index]->read_reg2->forwarded){
+        if (&(*inst)[instruction_index]->read_reg1 != &(*inst)[instruction_index]->read_reg2 && (*inst)[instruction_index]->read_reg2->usedFlag && !(*inst)[instruction_index]->read_reg2->forwarded){
             stall_count++;
         }
         return stall_count;
@@ -156,6 +160,7 @@ public:
             for (int j = 0; j <= current_cycle; j++){
                 (*nop_vector)[i].output[j] = (*inst)[instruction_index]->output[j];
             }
+            (*nop_vector)[i].edits = (*inst)[instruction_index]->edits;
         }
         return true;
     }
@@ -182,7 +187,8 @@ public:
         else
             (*inst)[instruction_index]->mark_cycle(current_cycle, "*");
         for (unsigned int i = 0; i < nop_vector->size(); i++){
-            (*nop_vector)[i].mark_cycle(current_cycle, "*");
+            if ((*nop_vector)[i].edits < 5)
+                (*nop_vector)[i].mark_cycle(current_cycle, "*");
         }
     }
     bool passInstruction(){
@@ -220,7 +226,8 @@ public:
         else
             (*inst)[instruction_index]->mark_cycle(current_cycle, "*");
         for (unsigned int i = 0; i < nop_vector->size(); i++){
-            (*nop_vector)[i].mark_cycle(current_cycle, "IF");
+            if ((*nop_vector)[i].edits < 5)
+                (*nop_vector)[i].mark_cycle(current_cycle, "IF");
         }
     }
     std::string getBranchLabel(){

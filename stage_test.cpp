@@ -11,8 +11,8 @@ int main(){
     
     std::vector<instruction*> instructions;
     std::string line1 = "add1";
-    std::string line2 = "add2";
-    std::string line3 = "add3";
+    std::string line2 = "add $w1,$r1,$r2";
+    std::string line3 = "add $w1,$w1,$r2";
     std::string line4 = "beq $s1,$s2,branch";
 
     addInstruction inst1(&read1, &read2, &write1, line1);
@@ -198,6 +198,59 @@ int main(){
 
     stage_mem.passInstruction();
     stage_ex.passInstruction();
+    assert(stage_id.checkStalls() == 1);
+    //stage_id.passInstruction();
+    stage_if.passInstruction();
+
+    stage_if.current_cycle++;
+    stage_id.current_cycle++;
+    stage_ex.current_cycle++;
+    stage_mem.current_cycle++;
+    stage_wb.current_cycle++;
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
+    stage_if.markCycle();
+    stage_id.markCycle();
+    stage_ex.markCycle();
+    stage_mem.markCycle();
+    stage_wb.markCycle();
+    stage_wb.writeBack();
+
+    instructions[0]->print_instruction();
+    instructions[1]->print_instruction();
+    instructions[2]->print_instruction();
+    instructions[3]->print_instruction();
+    std::cout << "\n";
+
+    stage_mem.passInstruction();
+    stage_ex.passInstruction();
+    assert(stage_id.checkStalls() == 0);
+    stage_id.passInstruction();
+    stage_if.passInstruction();
+
+    stage_if.current_cycle++;
+    stage_id.current_cycle++;
+    stage_ex.current_cycle++;
+    stage_mem.current_cycle++;
+    stage_wb.current_cycle++;
+//--------------------------------------------------------------------------------------------------------------------------------
+
+    stage_if.markCycle();
+    stage_id.markCycle();
+    stage_ex.markCycle();
+    stage_mem.markCycle();
+    stage_wb.markCycle();
+    stage_wb.writeBack();
+
+    instructions[0]->print_instruction();
+    instructions[1]->print_instruction();
+    instructions[2]->print_instruction();
+    instructions[3]->print_instruction();
+    std::cout << "\n";
+
+    stage_mem.passInstruction();
+    stage_ex.passInstruction();
     stage_id.passInstruction();
     stage_if.passInstruction();
 
@@ -214,6 +267,7 @@ int main(){
     stage_ex.markCycle();
     stage_mem.markCycle();
     stage_wb.markCycle();
+    stage_wb.writeBack();
 
     instructions[0]->print_instruction();
     instructions[1]->print_instruction();
@@ -226,7 +280,57 @@ int main(){
     stage_id.passInstruction();
     stage_if.passInstruction();
 
+    stage_if.current_cycle++;
+    stage_id.current_cycle++;
+    stage_ex.current_cycle++;
+    stage_mem.current_cycle++;
+    stage_wb.current_cycle++;
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
+    stage_if.markCycle();
+    stage_id.markCycle();
+    stage_ex.markCycle();
+    stage_mem.markCycle();
+    stage_wb.markCycle();
     stage_wb.writeBack();
+
+    instructions[0]->print_instruction();
+    instructions[1]->print_instruction();
+    instructions[2]->print_instruction();
+    instructions[3]->print_instruction();
+    std::cout << "\n";
+
+    stage_mem.passInstruction();
+    stage_ex.passInstruction();
+    stage_id.passInstruction();
+    stage_if.passInstruction();
+
+    stage_if.current_cycle++;
+    stage_id.current_cycle++;
+    stage_ex.current_cycle++;
+    stage_mem.current_cycle++;
+    stage_wb.current_cycle++;
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
+    stage_if.markCycle();
+    stage_id.markCycle();
+    stage_ex.markCycle();
+    stage_mem.markCycle();
+    stage_wb.markCycle();
+    stage_wb.writeBack();
+
+    instructions[0]->print_instruction();
+    instructions[1]->print_instruction();
+    instructions[2]->print_instruction();
+    instructions[3]->print_instruction();
+    std::cout << "\n";
+
+    stage_mem.passInstruction();
+    stage_ex.passInstruction();
+    stage_id.passInstruction();
+    stage_if.passInstruction();
 
     stage_if.current_cycle++;
     stage_id.current_cycle++;

@@ -17,6 +17,7 @@
 const int MAX_CYCLE = 16;
 class instruction{
 public:
+    int edits = 0;
     std::string instruction_type;
     Register* read_reg1;
     Register* read_reg2;
@@ -53,7 +54,8 @@ public:
             output[cycle] = stage_id;
         }
         else
-            output[cycle] = '*'; 
+            output[cycle] = '*';
+        edits++;
     }
     void print_instruction(){
         std::cout << std::left << std::setw(20) << line;
