@@ -6,6 +6,7 @@
 class stage{
 public:
     int current_cycle = 0;
+    int current_inst_index = 0;
     std::vector<nopInstruction>* nop_vector;
     instruction* inst = NULL;
 };
@@ -38,6 +39,7 @@ public:
         inst = NULL;
     }
     bool passInstruction(){
+        current_inst_index = -1;
         inst = NULL;
         return true;
     }
@@ -79,6 +81,8 @@ public:
     bool passInstruction(){
         if (next->fetchInstruction(inst)){
             inst = NULL;
+            next->current_inst_index = current_inst_index;
+            current_inst_index = -1;
             std::vector<nopInstruction>* next_nop_vec = next->nop_vector;
             next_nop_vec->clear();
             next->nop_vector = nop_vector;
@@ -122,6 +126,8 @@ public:
     bool passInstruction(){
         if (next->fetchInstruction(inst)){
             inst = NULL;
+            next->current_inst_index = current_inst_index;
+            current_inst_index = -1;
             std::vector<nopInstruction>* next_nop_vec = next->nop_vector;
             next_nop_vec->clear();
             next->nop_vector = nop_vector;
@@ -193,6 +199,8 @@ public:
     bool passInstruction(){
         if (checkStalls() == 0 && next->fetchInstruction(inst)){
             inst = NULL;
+            next->current_inst_index = current_inst_index;
+            current_inst_index = -1;
             std::vector<nopInstruction>* next_nop_vec = next->nop_vector;
             next_nop_vec->clear();
             next->nop_vector = nop_vector;
@@ -210,8 +218,9 @@ public:
 class IFStage: public stage{
 public:
     IDStage* next;
-    bool fetchInstruction(instruction* i){
+    bool fetchInstruction(instruction* i, int index){
         if (inst != NULL) return false;
+        current_inst_index = index;
         inst = i;
         return true;
     }
@@ -242,6 +251,8 @@ public:
     bool passInstruction(){
         if (next->fetchInstruction(inst)){
             inst = NULL;
+            next->current_inst_index = current_inst_index;
+            current_inst_index = -1;
             std::vector<nopInstruction>* next_nop_vec = next->nop_vector;
             next_nop_vec->clear();
             next->nop_vector = nop_vector;

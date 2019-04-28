@@ -224,13 +224,16 @@ public:
         stage2->current_cycle++;
     }*/
     void simulate(){
-        if (statement_to_pass < instruction_count){
+        if (add_instructions && statement_to_pass < instruction_count){
             putInUsed(statement_to_pass);
+            statement_index++;
             statement_to_pass++;
         } else {
             add_instructions = false;
+            //statement_index--;
+            statement_to_pass--;
         }
-        if (add_instructions && !stage1->fetchInstruction(usedInstruction[usedInstruction.size()-1])){
+        if (add_instructions && !stage1->fetchInstruction(usedInstruction[usedInstruction.size()-1],statement_index)){
             statement_to_pass--;
             //usedInstruction.pop_back();
         }
@@ -258,7 +261,7 @@ public:
             if (stalls_num != 0 && !stage2->isStalled()){
                 stage2->insert_stalls(stalls_num);
                 for (int i = 0; i < stalls_num; i++){
-                    usedInstruction.insert(usedInstruction.begin()+stalls_num, &((*stage2->nop_vector)[i]));
+                    usedInstruction.insert(usedInstruction.begin()+stage2->current_inst_index-1, &((*stage2->nop_vector)[i]));
                 }
                 statement_index += stalls_num;
             }
