@@ -20,7 +20,10 @@ public:
 
     void markCycle(){
         if (instruction_index == -1) return;
-        (*inst)[instruction_index]->mark_cycle(current_cycle, "WB");
+        if((*inst)[instruction_index]->suspended) {
+            (*inst)[instruction_index]->mark_cycle(current_cycle, "*");
+        }
+        else{(*inst)[instruction_index]->mark_cycle(current_cycle, "WB");}
         for (unsigned int i = 0; i < nop_vector->size(); i++){
             (*nop_vector)[i].mark_cycle(current_cycle, "*");
         }
@@ -59,7 +62,10 @@ public:
 
     void markCycle(){
         if (instruction_index == -1) return;
-        (*inst)[instruction_index]->mark_cycle(current_cycle, "MEM");
+        if((*inst)[instruction_index]->suspended) {
+            (*inst)[instruction_index]->mark_cycle(current_cycle, "*");
+        }
+        else{(*inst)[instruction_index]->mark_cycle(current_cycle, "MEM");}
         for (unsigned int i = 0; i < nop_vector->size(); i++){
             (*nop_vector)[i].mark_cycle(current_cycle, "*");
         }
@@ -87,7 +93,10 @@ public:
     MEMStage* next;
     void markCycle(){
         if (instruction_index == -1) return;
-        (*inst)[instruction_index]->mark_cycle(current_cycle, "EX");
+        if((*inst)[instruction_index]->suspended) {
+            (*inst)[instruction_index]->mark_cycle(current_cycle, "*");
+        }
+        else{(*inst)[instruction_index]->mark_cycle(current_cycle, "EX");}
         for (unsigned int i = 0; i < nop_vector->size(); i++){
             (*nop_vector)[i].mark_cycle(current_cycle, "*");
         }
@@ -165,7 +174,10 @@ public:
     }
     void markCycle(){
         if (instruction_index == -1) return;
-        (*inst)[instruction_index]->mark_cycle(current_cycle, "ID");
+        if((*inst)[instruction_index]->suspended) {
+            (*inst)[instruction_index]->mark_cycle(current_cycle, "*");
+        }
+        else{(*inst)[instruction_index]->mark_cycle(current_cycle, "ID");}
         for (unsigned int i = 0; i < nop_vector->size(); i++){
             (*nop_vector)[i].mark_cycle(current_cycle, "ID");
         }

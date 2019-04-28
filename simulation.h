@@ -110,7 +110,6 @@ public:
         instruction_count = 0;
         usedInstruction = std::vector<instruction*>();
         stage5 = new WBStage(usedInstruction);
-        stage5->next=NULL;
         stage4 = new MEMStage(usedInstruction);
         stage4->next=stage5;
         stage3 = new EXStage(usedInstruction);
@@ -182,14 +181,20 @@ public:
     std::string WBExecute() {
         stage5->markCycle();
         stage5->writeBack();
-        std::string lab = getBranchLabel();
+        std::string lab = stage5->getBranchLabel();
         if(lab.compare("")!=0) {
-            if(stage4->instruction_index!=-1) (*(stage4->inst)[stage4->instruction_index]).suspend();
-            if(stage3->instruction_index!=-1) (*(stage3->inst)[stage3->instruction_index]).suspend();
-            if(stage2->instruction_index!=-1) (*(stage2->inst)[stage2->instruction_index]).suspend();
-            if(stage1->instruction_index!=-1) (*(stage1->inst)[stage1->instruction_index]).suspend();
+            if(stage4->instruction_index!=-1) ((*(stage4->inst))[stage4->instruction_index])->suspend();
+            if(stage3->instruction_index!=-1) ((*(stage3->inst))[stage3->instruction_index])->suspend();
+            if(stage2->instruction_index!=-1) ((*(stage2->inst))[stage2->instruction_index])->suspend();
+            if(stage1->instruction_index!=-1) {
+                usedInstruction.pop_back();
+                statement_to_pass = label_map[lab];
+                putInUsed(statement_to_pass);
+                stage1->fetchInstruction(statement_index);
+                //statement_to_pass++;
+            }
         }
-        *(stage4->inst)[stage4->instruction_index]->write_reg->usedFlag=false;
+        if(stage5->instruction_index!=-1) {(*(stage5->inst))[stage5->instruction_index]->write_reg->usedFlag=false;}
         stage5->passInstruction();
         stage5->current_cycle++;
         return lab;
@@ -203,13 +208,16 @@ public:
     }
     void IDExecute() {
         stage2->markCycle();
-        if(*(stage2->inst)[stage2->instruction_index]->suspended) {
-            stage2->passInstruction();
-        }
-        else {
-            stage2->markAsUsed();
-            if(!(stage2->insert_stalls(stage2->checkStalls()))) {
+        if(stage2->instruction_index!=-1) {
+            if((*(stage2->inst))[stage2->instruction_index]->suspended) {
                 stage2->passInstruction();
+            }
+            else {
+                stage2->markAsUsed();
+                if(stage2->checkStalls() > 0) {
+                    stage2->insert_stalls(stage2->checkStalls());
+                    stage2->passInstruction();
+                }
             }
         }
         stage2->current_cycle++;
@@ -230,14 +238,14 @@ public:
         stage1->passInstruction();
         stage1->current_cycle++;
         if(lab.compare("") != 0) {
-            statement_to_pass = label_map[lab];
+            statement_to_pass++;
         }
         printActive();
         cycle_count++;
         bool done = stage1->instruction_index == -1 && stage2->instruction_index == -1 && 
             stage3->instruction_index == -1 && stage4->instruction_index == -1
             && stage5->instruction_index == -1;
-        if(done || cycle_count==15) {return;}
+        if(done || cycle_count==16) {return;}
         simulate();
     }
 };
