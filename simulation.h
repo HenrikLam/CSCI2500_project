@@ -269,22 +269,29 @@ public:
         stage5->passInstruction();
         stage4->passInstruction();
 
-        stage3->executeInstruction();
-        if (forward)
-            stage3->forward();
+        if(stage3->inst!=NULL && !stage3->inst->suspended) {
+            stage3->executeInstruction();
+            if (forward)
+                stage3->forward();
+        }
         stage3->passInstruction();
 
-        if (stage2->passInstruction()){
-            stage2->markAsUsed();
-        } else {
-            int stalls_num = stage2->checkStalls();
-            if (stalls_num != 0 && !stage2->isStalled()){
-                stage2->insert_stalls(stalls_num);
-                for (int i = 0; i < stalls_num; i++){
-                    usedInstruction.insert(usedInstruction.begin()+stage2->current_inst_index-1, &((*stage2->nop_vector)[i]));
+        if(stage2->inst!=NULL && !stage2->inst->suspended) {
+            if (stage2->passInstruction()){
+                stage2->markAsUsed();
+            } else {
+                int stalls_num = stage2->checkStalls();
+                if (stalls_num != 0 && !stage2->isStalled()){
+                    stage2->insert_stalls(stalls_num);
+                    for (int i = 0; i < stalls_num; i++){
+                        usedInstruction.insert(usedInstruction.begin()+stage2->current_inst_index-1, &((*stage2->nop_vector)[i]));
+                    }
+                    statement_index += stalls_num;
                 }
-                statement_index += stalls_num;
             }
+        }
+        else {
+            stage2->passInstruction();
         }
         stage1->passInstruction();
 
