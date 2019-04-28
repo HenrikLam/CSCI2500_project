@@ -22,7 +22,6 @@ public:
     Register* read_reg2;
     Register* write_reg;
     std::string line;
-    int stalls;
     bool suspended = false;
     int evaluatedValue;
     // 0-th index is the actual instruction
@@ -53,42 +52,15 @@ public:
     }
     void insert_stalls(int stall_amount){
         if (stall_amount > 2 || stall_amount < 0) throw std::runtime_error("invalid number of stalls");
-        if (stalls == 0){
-            stalls += stall_amount;
-            for (int i = 0; i < MAX_CYCLE; i++){
-                for (int j = 1; j <= stall_amount; j++){
-                    output[j][i] = output[0][i];
-                }
-            }
-        }
     }
     void mark_cycle(int cycle, std::string stage_id){
         if (!suspended){
             output[0][cycle] = stage_id;
-            for (int i = 1; i <= stalls; i++){
-                if (stage_id.compare("IF") == 0 || stage_id.compare("ID") == 0){
-                    output[i][cycle] = stage_id;
-                } else {
-                    output[i][cycle] = "*";
-                }
-            }
         }
         else
             output[0][cycle] = '*'; 
     }
-    void advance_stalls(int cycle){
-        for (int i = 1; i <= stalls; i++){
-            output[i][cycle] = "*";
-        }
-    }
     void print_instruction(){
-        for (int i = 1; i <= stalls; i++){
-            std::cout << std::left << std::setw(20) << "nop";
-            for (int j = 0; j < MAX_CYCLE-1; j++){
-                std::cout << std::setw(4) << output[i][j];
-            }
-            std::cout << output[i][MAX_CYCLE-1]<< "\n";
-        }
         std::cout << std::left << std::setw(20) << line;
         for (int i = 0; i < MAX_CYCLE-1; i++){
             std::cout << std::setw(4) << output[0][i];
@@ -109,12 +81,10 @@ public:
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
-        stalls = 0;
     }
     addInstruction(const addInstruction& other){
         instruction_type = "add";
         initializeOutput();
-        stalls = 0;
         line = other.line;
         read_reg1 = other.read_reg1;
         read_reg2 = other.read_reg2;
@@ -137,12 +107,10 @@ public:
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
-        stalls = 0;
     }
     andInstruction(const andInstruction& other){
         instruction_type = "and";
         initializeOutput();
-        stalls = 0;
         line = other.line;
         read_reg1 = other.read_reg1;
         read_reg2 = other.read_reg2;
@@ -165,12 +133,10 @@ public:
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
-        stalls = 0;
     }
     orInstruction(const orInstruction& other){
         instruction_type = "or";
         initializeOutput();
-        stalls = 0;
         line = other.line;
         read_reg1 = other.read_reg1;
         read_reg2 = other.read_reg2;
@@ -193,12 +159,10 @@ public:
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
-        stalls = 0;
     }
     sltInstruction(const sltInstruction& other){
         instruction_type = "slt";
         initializeOutput();
-        stalls = 0;
         line = other.line;
         read_reg1 = other.read_reg1;
         read_reg2 = other.read_reg2;
@@ -222,12 +186,10 @@ public:
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
-        stalls = 0;
     }
     beqInstruction(const beqInstruction& other){
         instruction_type = "beq";
         initializeOutput();
-        stalls = 0;
         line = other.line;
         read_reg1 = other.read_reg1;
         read_reg2 = other.read_reg2;
@@ -254,12 +216,10 @@ public:
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
-        stalls = 0;
     }
     bneInstruction(const bneInstruction& other){
         instruction_type = "bne";
         initializeOutput();
-        stalls = 0;
         line = other.line;
         read_reg1 = other.read_reg1;
         read_reg2 = other.read_reg2;
@@ -285,12 +245,10 @@ public:
         read_reg1 = rr1;
         read_reg2 = rr2;
         write_reg = wr;
-        stalls = 0;
     }
     labelInstruction(const labelInstruction& other){
         instruction_type = other.instruction_type;
         initializeOutput();
-        stalls = 0;
         line = other.line;
         read_reg1 = other.read_reg1;
         read_reg2 = other.read_reg2;
@@ -301,6 +259,18 @@ public:
     }
     virtual labelInstruction* copyInstruction(){
         return new labelInstruction(*this);
+    }
+};
+
+class nopInstruction: public instruction{
+public:
+    nopInstruction(){
+        instruction_type = "nop";
+        line = "nop";
+        initializeOutput();
+    }
+    void evaluate(){
+        throw std::runtime_error("Attempting to evaluate a nop");
     }
 };
 #endif

@@ -1,5 +1,5 @@
 #include "instruction.h"
-#include "assert.h"
+#include <assert.h>
 int main (){
     Register write;
     Register read1;
@@ -102,18 +102,6 @@ int main (){
 
     line = "print test";
     addInstruction inst6(&read1, &read2, &write, line);
-    
-    inst6.mark_cycle(1, "IF");
-    inst6.mark_cycle(2, "ID");
-    inst6.insert_stalls(2);
-    inst6.mark_cycle(3, "EXE");
-    inst6.advance_stalls(3);
-    inst6.mark_cycle(4, "MEM");
-    inst6.advance_stalls(4);
-    inst6.terminate();
-    inst6.mark_cycle(5, "WB");
-    inst6.advance_stalls(5);
-    inst6.print_instruction();
 
     line = "forward test";
     addInstruction inst7(&read1, &read2, &write, line);
