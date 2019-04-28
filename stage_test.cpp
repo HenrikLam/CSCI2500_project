@@ -78,4 +78,10 @@ int main(){
     stage_id.passInstruction();
     assert(stage_ex.nop_vector == id_old_nop_vec);
     assert(stage_id.nop_vector->size() == 0);
+
+    instructions.erase(instructions.begin());
+    instructions.erase(instructions.begin());
+
+    stage_if.fetchInstruction(0);
+    assert(stage_if.getBranchLabel().compare("")==0);
 }
