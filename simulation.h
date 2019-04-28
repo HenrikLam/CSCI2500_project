@@ -90,6 +90,7 @@ public:
     std::vector<instruction*> usedInstruction;
     instruction* instructions[10];
     int instruction_count;
+    bool add_instructions = true;
     IFStage* stage1;
     IDStage* stage2;
     EXStage* stage3;
@@ -109,14 +110,14 @@ public:
         forward = f;
         instruction_count = 0;
         usedInstruction = std::vector<instruction*>();
-        stage5 = new WBStage(usedInstruction);
-        stage4 = new MEMStage(usedInstruction);
+        stage5 = new WBStage();
+        stage4 = new MEMStage();
         stage4->next=stage5;
-        stage3 = new EXStage(usedInstruction);
+        stage3 = new EXStage();
         stage3->next=stage4;
-        stage2 = new IDStage(usedInstruction);
+        stage2 = new IDStage();
         stage2->next=stage3;
-        stage1 = new IFStage(usedInstruction);
+        stage1 = new IFStage();
         stage1->next=stage2;
     }
     void putInUsed(int index){
@@ -177,7 +178,7 @@ public:
         }
         std::cout<<"\n";
         printReg();
-    }
+    }/*
     std::string WBExecute() {
         stage5->markCycle();
         stage5->writeBack();
@@ -221,20 +222,25 @@ public:
             }
         }
         stage2->current_cycle++;
-    }
+    }*/
     void simulate(){
         if (statement_to_pass < instruction_count){
             putInUsed(statement_to_pass);
             statement_to_pass++;
+        } else {
+            add_instructions = false;
         }
-        if(statement_index < usedInstruction.size() && stage1->fetchInstruction(statement_index)) {
-            statement_index++;
+        if (add_instructions && !stage1->fetchInstruction(usedInstruction[usedInstruction.size()-1])){
+            statement_to_pass--;
+            //usedInstruction.pop_back();
         }
         stage1->markCycle();
         stage2->markCycle();
         stage3->markCycle();
         stage4->markCycle();
         stage5->markCycle();
+
+        printActive();
 
         stage5->writeBack();
 
@@ -245,22 +251,17 @@ public:
             stage3->forward();
         stage3->passInstruction();
 
-        int stalls_num = stage2->checkStalls();
-        if (stalls_num != 0 && !stage2->isStalled()){
-            int stage2_inst_index = stage2->instruction_index;
-            stage2->insert_stalls(stalls_num);
-            for (int i = 0; i < stalls_num; i++){
-                usedInstruction.insert(usedInstruction.begin()+stalls_num, &((*stage2->nop_vector)[i]));
-            }
-            statement_index += stalls_num;
-            stage2->instruction_index += stalls_num;
-            //stage3->instruction_index += stalls_num;
-            //stage4->instruction_index += stalls_num;
-            //stage5->instruction_index += stalls_num;
-            //stage1->instruction_index += stalls_num;
-        } else if (stalls_num == 0){
+        if (stage2->passInstruction()){
             stage2->markAsUsed();
-            stage2->passInstruction();
+        } else {
+            int stalls_num = stage2->checkStalls();
+            if (stalls_num != 0 && !stage2->isStalled()){
+                stage2->insert_stalls(stalls_num);
+                for (int i = 0; i < stalls_num; i++){
+                    usedInstruction.insert(usedInstruction.begin()+stalls_num, &((*stage2->nop_vector)[i]));
+                }
+                statement_index += stalls_num;
+            }
         }
         stage1->passInstruction();
 
@@ -270,11 +271,10 @@ public:
         stage4->current_cycle++;
         stage5->current_cycle++;
 
-        printActive();
         cycle_count++;
-        bool done = stage1->instruction_index == -1 && stage2->instruction_index == -1 && 
-            stage3->instruction_index == -1 && stage4->instruction_index == -1
-            && stage5->instruction_index == -1;
+        bool done = stage1->inst == NULL && stage2->inst == NULL && 
+            stage3->inst == NULL && stage4->inst == NULL
+            && stage5->inst == NULL;
         if(done || cycle_count==16) {return;}
         simulate();
     }
