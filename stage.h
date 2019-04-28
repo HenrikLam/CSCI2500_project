@@ -21,7 +21,7 @@ public:
     void markCycle(){
         if (instruction_index == -1) return;
         (*inst)[instruction_index]->mark_cycle(current_cycle, "WB");
-        for (int i = 0; i < nop_vector->size(); i++){
+        for (unsigned int i = 0; i < nop_vector->size(); i++){
             (*nop_vector)[i].mark_cycle(current_cycle, "*");
         }
     }
@@ -47,7 +47,7 @@ public:
     void markCycle(){
         if (instruction_index == -1) return;
         (*inst)[instruction_index]->mark_cycle(current_cycle, "MEM");
-        for (int i = 0; i < nop_vector->size(); i++){
+        for (unsigned int i = 0; i < nop_vector->size(); i++){
             (*nop_vector)[i].mark_cycle(current_cycle, "*");
         }
     }
@@ -78,7 +78,7 @@ public:
     void markCycle(){
         if (instruction_index == -1) return;
         (*inst)[instruction_index]->mark_cycle(current_cycle, "EX");
-        for (int i = 0; i < nop_vector->size(); i++){
+        for (unsigned int i = 0; i < nop_vector->size(); i++){
             (*nop_vector)[i].mark_cycle(current_cycle, "*");
         }
     }
@@ -151,7 +151,7 @@ public:
     void markCycle(){
         if (instruction_index == -1) return;
         (*inst)[instruction_index]->mark_cycle(current_cycle, "ID");
-        for (int i = 0; i < nop_vector->size(); i++){
+        for (unsigned int i = 0; i < nop_vector->size(); i++){
             (*nop_vector)[i].mark_cycle(current_cycle, "ID");
         }
     }
@@ -177,6 +177,7 @@ public:
     IDStage* next;
     bool fetchInstruction(int index){
         instruction_index = index;
+        return next->fetchInstruction(next->instruction_index);
     }
     IFStage(std::vector<instruction*>& i){
         inst = &i;
@@ -185,7 +186,7 @@ public:
     void markCycle(){
         if (instruction_index == -1) return;
         (*inst)[instruction_index]->mark_cycle(current_cycle, "IF");
-        for (int i = 0; i < nop_vector->size(); i++){
+        for (unsigned int i = 0; i < nop_vector->size(); i++){
             (*nop_vector)[i].mark_cycle(current_cycle, "IF");
         }
     }

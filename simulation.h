@@ -92,7 +92,7 @@ public:
     int instruction_count;
     IFStage* stage1;
     IDStage* stage2;
-    EXEStage* stage3;
+    EXStage* stage3;
     MEMStage* stage4;
     WBStage* stage5;
 
@@ -109,11 +109,11 @@ public:
         forward = f;
         instruction_count = 0;
         usedInstruction = std::vector<instruction*>();
-        stage5 = new WBStage(usedInstruction, f, NULL);
-        stage4 = new MEMStage(usedInstruction, f, stage5);
-        stage3 = new EXEStage(usedInstruction, f, stage4);
-        stage2 = new IDStage(usedInstruction, f, stage3);
-        stage1 = new IFStage(usedInstruction, f, stage2);
+        stage5 = new WBStage(usedInstruction);
+        stage4 = new MEMStage(usedInstruction);
+        stage3 = new EXStage(usedInstruction);
+        stage2 = new IDStage(usedInstruction);
+        stage1 = new IFStage(usedInstruction);
     }
     void putInUsed(int index){
         usedInstruction.push_back(instructions[index]->copyInstruction());
@@ -175,30 +175,7 @@ public:
         printReg();
     }
     void simulate(){
-        if (statement_index < instruction_count)
-            putInUsed(statement_index);
-        if (stage1->fetchInstruction(statement_to_pass)) {
-            statement_index++;
-            statement_to_pass++;
-        }
-        if (jump_flag.value == 1) {
-            std::string label = stage1->getJumpLabel();
-            statement_index = label_map[label];
-            jump_flag.value = 0;
-        } else if (stage5->instruction_index != -1 && ((*(stage5->inst))[stage5->instruction_index]->instruction_type.compare("bne") || (*(stage5->inst))[stage5->instruction_index]->instruction_type.compare("beq"))){
-            stage1->flushAll();
-        }
-
-        stage1->execute();
         
-        bool done = stage1->instruction_index == -1 && stage2->instruction_index == -1 && 
-            stage3->instruction_index == -1 && stage4->instruction_index == -1
-            && stage5->instruction_index == -1;
-        //stage5->instruction_index = -1;
-        cycle_count++;
-        printActive();
-        if (cycle_count == 16) return;
-        if(done) return;
         simulate();
     }
 };
