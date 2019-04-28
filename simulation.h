@@ -237,6 +237,28 @@ public:
             statement_to_pass--;
             //usedInstruction.pop_back();
         }
+        //checking for branching to know if to suspend each value
+        std::string label = stage5->getBranchLabel();
+        if(label.compare("")!=0) {
+            if(stage4->inst!=NULL) stage4->inst->suspend();
+            if(stage3->inst!=NULL) stage3->inst->suspend();
+            if(stage2->inst!=NULL) stage2->inst->suspend();
+            if(stage1->inst!=NULL) {
+                usedInstruction.pop_back();
+                statement_to_pass = label_map[label];
+                putInUsed(statement_to_pass);
+                stage1->fetchInstruction(usedInstruction[usedInstruction.size()-1], statement_index);
+                statement_to_pass++;
+            }
+            else {
+                statement_to_pass=label_map[label];
+                putInUsed(statement_to_pass);
+                stage1->fetchInstruction(usedInstruction[usedInstruction.size()-1], statement_index);
+                statement_to_pass++;
+                statement_index++;
+            }
+        }
+        //before marking, check for branch
         stage1->markCycle();
         stage2->markCycle();
         stage3->markCycle();
