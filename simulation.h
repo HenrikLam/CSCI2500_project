@@ -249,6 +249,7 @@ public:
                 putInUsed(statement_to_pass);
                 stage1->fetchInstruction(usedInstruction[usedInstruction.size()-1], statement_index);
                 statement_to_pass++;
+                statement_index++;
             }
             else {
                 statement_to_pass=label_map[label];
@@ -257,6 +258,7 @@ public:
                 statement_to_pass++;
                 statement_index++;
             }
+            add_instructions=true;
         }
         //before marking, check for branch
         stage1->markCycle();
@@ -295,7 +297,7 @@ public:
         }
         stage1->passInstruction();
 
-        stage5->writeBack();
+        if(stage5->inst!=NULL && !stage5->inst->suspended) stage5->writeBack();
 
         stage1->current_cycle++;
         stage2->current_cycle++;
