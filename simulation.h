@@ -244,9 +244,7 @@ public:
         stage5->markCycle();
 
         printActive();
-
-        stage5->writeBack();
-
+        stage5->passInstruction();
         stage4->passInstruction();
 
         stage3->executeInstruction();
@@ -267,6 +265,8 @@ public:
             }
         }
         stage1->passInstruction();
+
+        stage5->writeBack();
 
         stage1->current_cycle++;
         stage2->current_cycle++;

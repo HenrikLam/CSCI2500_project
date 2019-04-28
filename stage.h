@@ -36,7 +36,6 @@ public:
         if (inst == NULL) return;
         inst->writeBack();
         inst->write_reg->usedFlag = false;
-        inst = NULL;
     }
     bool passInstruction(){
         current_inst_index = -1;
