@@ -26,6 +26,8 @@ int main(){
     instructions.push_back(&inst4);
 
     IFStage stage_if(instructions);
+    IDStage stage_id(instructions);
+    stage_if.next = &stage_id;
     stage_if.fetchInstruction(0);
     assert(stage_if.instruction_index == 0);
     assert(stage_if.inst == &instructions);
@@ -35,7 +37,6 @@ int main(){
     stage_if.fetchInstruction(3);
     assert(stage_if.getBranchLabel().compare("branch") == 0);
 
-    IDStage stage_id(instructions);
     stage_id.fetchInstruction(0);
     read1.usedFlag = true;
     assert(stage_id.checkStalls() == 1);
@@ -60,7 +61,7 @@ int main(){
 
     MEMStage stage_mem(instructions);
     stage_mem.fetchInstruction(0);
-    stage_mem.forward();
+    stage_ex.forward();
     assert(write1.forwardedValue == 3);
     
     WBStage stage_wb(instructions);
@@ -94,6 +95,7 @@ int main(){
     instructions.erase(instructions.begin());
     instructions.erase(instructions.begin());
 
+//--------------------------------------------------------------------------------------------------------------------------------
     stage_if.fetchInstruction(0);
     assert(stage_if.getBranchLabel().compare("") == 0);
     assert(instructions.at(0) == &inst2);
@@ -107,6 +109,7 @@ int main(){
     instructions[0]->print_instruction();
     instructions[1]->print_instruction();
     instructions[2]->print_instruction();
+    std::cout << "\n";
 
     stage_mem.passInstruction();
     stage_ex.passInstruction();
@@ -119,6 +122,7 @@ int main(){
     stage_mem.current_cycle++;
     stage_wb.current_cycle++;
 
+//--------------------------------------------------------------------------------------------------------------------------------
     assert(stage_id.instruction_index == 0);
     stage_if.fetchInstruction(1);
     assert(stage_if.getBranchLabel().compare("") == 0);
@@ -132,6 +136,7 @@ int main(){
     instructions[0]->print_instruction();
     instructions[1]->print_instruction();
     instructions[2]->print_instruction();
+    std::cout << "\n";
 
     stage_mem.passInstruction();
     stage_ex.passInstruction();
@@ -144,6 +149,7 @@ int main(){
     stage_mem.current_cycle++;
     stage_wb.current_cycle++;
 
+//--------------------------------------------------------------------------------------------------------------------------------
     assert(stage_id.instruction_index == 1);
     stage_if.fetchInstruction(2);
     assert(stage_if.getBranchLabel().compare("branch") == 0);
@@ -154,14 +160,73 @@ int main(){
     stage_mem.markCycle();
     stage_wb.markCycle();
 
+    stage_id.markAsUsed();
     instructions[0]->print_instruction();
     instructions[1]->print_instruction();
     instructions[2]->print_instruction();
+    std::cout << "\n";
+
+    stage_mem.passInstruction();
+    stage_ex.passInstruction();
+    assert(stage_id.checkStalls() == 1);
+    stage_id.insert_stalls(1);
+    instructions.insert(instructions.begin()+1, &(stage_id.nop_vector->at(0)));
+    stage_id.instruction_index += 1;
+    stage_if.instruction_index += 2;
+    //stage_id.passInstruction();
+    stage_if.passInstruction();
+
+    stage_if.current_cycle++;
+    stage_id.current_cycle++;
+    stage_ex.current_cycle++;
+    stage_mem.current_cycle++;
+    stage_wb.current_cycle++;
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
+    stage_if.markCycle();
+    stage_id.markCycle();
+    stage_ex.markCycle();
+    stage_mem.markCycle();
+    stage_wb.markCycle();
+
+    instructions[0]->print_instruction();
+    instructions[1]->print_instruction();
+    instructions[2]->print_instruction();
+    instructions[3]->print_instruction();
+    std::cout << "\n";
 
     stage_mem.passInstruction();
     stage_ex.passInstruction();
     stage_id.passInstruction();
     stage_if.passInstruction();
+
+    stage_if.current_cycle++;
+    stage_id.current_cycle++;
+    stage_ex.current_cycle++;
+    stage_mem.current_cycle++;
+    stage_wb.current_cycle++;
+
+//--------------------------------------------------------------------------------------------------------------------------------
+
+    stage_if.markCycle();
+    stage_id.markCycle();
+    stage_ex.markCycle();
+    stage_mem.markCycle();
+    stage_wb.markCycle();
+
+    instructions[0]->print_instruction();
+    instructions[1]->print_instruction();
+    instructions[2]->print_instruction();
+    instructions[3]->print_instruction();
+    std::cout << "\n";
+
+    stage_mem.passInstruction();
+    stage_ex.passInstruction();
+    stage_id.passInstruction();
+    stage_if.passInstruction();
+
+    stage_wb.writeBack();
 
     stage_if.current_cycle++;
     stage_id.current_cycle++;
