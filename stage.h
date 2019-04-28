@@ -29,10 +29,23 @@ public:
         instruction_index = index;
         return true;
     }
-
     void writeBack(){
         if (instruction_index == -1) return;
         (*inst)[instruction_index]->writeBack();
+    }
+    bool passInstruction(){
+        instruction_index = -1;
+        return true;
+    }
+    std::string getBranchLabel(){
+        if (instruction_index == -1) return "";
+        if ((*inst)[instruction_index]->instruction_type.compare("bne") == 0 ||
+            (*inst)[instruction_index]->instruction_type.compare("beq") == 0){
+            std::string line = (*inst)[instruction_index]->line;
+            //std::cout << line << line.find_last_of(",") << "\n";
+            return line.substr(line.find_last_of(",")+1);
+        }
+        return "";
     }
 };
 

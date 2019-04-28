@@ -29,8 +29,8 @@ int main(){
     stage_if.fetchInstruction(0);
     assert(stage_if.instruction_index == 0);
     assert(stage_if.inst == &instructions);
-    stage_if.markCycle();
-    inst1.print_instruction();
+    //stage_if.markCycle();
+    //inst1.print_instruction();
 
     stage_if.fetchInstruction(3);
     assert(stage_if.getBranchLabel().compare("branch") == 0);
@@ -41,10 +41,10 @@ int main(){
     assert(stage_id.checkStalls() == 1);
     stage_id.insert_stalls(1);
     instructions.insert(instructions.begin()+1,&stage_id.nop_vector->at(0));
-    stage_id.markCycle();
+    //stage_id.markCycle();
     assert(stage_id.inst->at(0) == &inst1);
-    instructions[0]->print_instruction();
-    instructions[1]->print_instruction();
+    //instructions[0]->print_instruction();
+    //instructions[1]->print_instruction();
     stage_id.current_cycle = 1;
     read1.usedFlag = false;
 
@@ -74,6 +74,18 @@ int main(){
     stage_ex.next = &stage_mem;
     stage_mem.next = &stage_wb;
 
+    stage_mem.instruction_index = -1;
+    stage_if.instruction_index = -1;
+    stage_id.instruction_index = -1;
+    stage_ex.instruction_index = -1;
+    stage_wb.instruction_index = -1;
+    
+    stage_if.current_cycle = 0;
+    stage_id.current_cycle = 0;
+    stage_ex.current_cycle = 0;
+    stage_mem.current_cycle = 0;
+    stage_wb.current_cycle = 0;
+
     std::vector<nopInstruction>* id_old_nop_vec = stage_id.nop_vector;
     stage_id.passInstruction();
     assert(stage_ex.nop_vector == id_old_nop_vec);
@@ -84,4 +96,76 @@ int main(){
 
     stage_if.fetchInstruction(0);
     assert(stage_if.getBranchLabel().compare("") == 0);
+    assert(instructions.at(0) == &inst2);
+
+    stage_if.markCycle();
+    stage_id.markCycle();
+    stage_ex.markCycle();
+    stage_mem.markCycle();
+    stage_wb.markCycle();
+    
+    instructions[0]->print_instruction();
+    instructions[1]->print_instruction();
+    instructions[2]->print_instruction();
+
+    stage_mem.passInstruction();
+    stage_ex.passInstruction();
+    stage_id.passInstruction();
+    stage_if.passInstruction();
+
+    stage_if.current_cycle++;
+    stage_id.current_cycle++;
+    stage_ex.current_cycle++;
+    stage_mem.current_cycle++;
+    stage_wb.current_cycle++;
+
+    assert(stage_id.instruction_index == 0);
+    stage_if.fetchInstruction(1);
+    assert(stage_if.getBranchLabel().compare("") == 0);
+
+    stage_if.markCycle();
+    stage_id.markCycle();
+    stage_ex.markCycle();
+    stage_mem.markCycle();
+    stage_wb.markCycle();
+
+    instructions[0]->print_instruction();
+    instructions[1]->print_instruction();
+    instructions[2]->print_instruction();
+
+    stage_mem.passInstruction();
+    stage_ex.passInstruction();
+    stage_id.passInstruction();
+    stage_if.passInstruction();
+
+    stage_if.current_cycle++;
+    stage_id.current_cycle++;
+    stage_ex.current_cycle++;
+    stage_mem.current_cycle++;
+    stage_wb.current_cycle++;
+
+    assert(stage_id.instruction_index == 1);
+    stage_if.fetchInstruction(2);
+    assert(stage_if.getBranchLabel().compare("branch") == 0);
+
+    stage_if.markCycle();
+    stage_id.markCycle();
+    stage_ex.markCycle();
+    stage_mem.markCycle();
+    stage_wb.markCycle();
+
+    instructions[0]->print_instruction();
+    instructions[1]->print_instruction();
+    instructions[2]->print_instruction();
+
+    stage_mem.passInstruction();
+    stage_ex.passInstruction();
+    stage_id.passInstruction();
+    stage_if.passInstruction();
+
+    stage_if.current_cycle++;
+    stage_id.current_cycle++;
+    stage_ex.current_cycle++;
+    stage_mem.current_cycle++;
+    stage_wb.current_cycle++;
 }
