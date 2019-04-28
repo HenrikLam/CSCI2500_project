@@ -83,5 +83,5 @@ int main(){
     instructions.erase(instructions.begin());
 
     stage_if.fetchInstruction(0);
-    assert(stage_if.getBranchLabel().compare("")==0);
+    assert(stage_if.getBranchLabel().compare("") == 0);
 }
