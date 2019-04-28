@@ -14,7 +14,7 @@
 // contains stall counter indicating how many stalls there are that are associated with this instruction
 
 // program_counter should only be used by jump instructions
-int MAX_CYCLE = 16;
+const int MAX_CYCLE = 16;
 class instruction{
 public:
     std::string instruction_type;
@@ -26,7 +26,7 @@ public:
     int evaluatedValue;
     // 0-th index is the actual instruction
     // subsequent index are for stalls
-    std::string* output[3];
+    std::string output[MAX_CYCLE];
     virtual instruction* copyInstruction(){
         return this;
     }
@@ -41,13 +41,8 @@ public:
         write_reg->setForwardValue(evaluatedValue);
     }
     void initializeOutput(){
-        output[0] = new std::string[MAX_CYCLE];
-        output[1] = new std::string[MAX_CYCLE];
-        output[2] = new std::string[MAX_CYCLE];
         for (int i = 0; i < MAX_CYCLE; i++){
-            output[0][i] = ".";
-            output[1][i] = ".";
-            output[2][i] = ".";
+            output[i] = ".";
         }
     }
     void insert_stalls(int stall_amount){
@@ -55,17 +50,17 @@ public:
     }
     void mark_cycle(int cycle, std::string stage_id){
         if (!suspended){
-            output[0][cycle] = stage_id;
+            output[cycle] = stage_id;
         }
         else
-            output[0][cycle] = '*'; 
+            output[cycle] = '*'; 
     }
     void print_instruction(){
         std::cout << std::left << std::setw(20) << line;
         for (int i = 0; i < MAX_CYCLE-1; i++){
-            std::cout << std::setw(4) << output[0][i];
+            std::cout << std::setw(4) << output[i];
         }
-        std::cout << output[0][MAX_CYCLE-1] << "\n";
+        std::cout << output[MAX_CYCLE-1] << "\n";
     }
     void terminate(){
         suspended = true;

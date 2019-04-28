@@ -20,10 +20,10 @@ public:
 
     void markCycle(){
         if (instruction_index == -1) return;
-        if((*inst)[instruction_index]->suspended) {
+        if (!(*inst)[instruction_index]->suspended)
+            (*inst)[instruction_index]->mark_cycle(current_cycle, "WB");
+        else
             (*inst)[instruction_index]->mark_cycle(current_cycle, "*");
-        }
-        else{(*inst)[instruction_index]->mark_cycle(current_cycle, "WB");}
         for (unsigned int i = 0; i < nop_vector->size(); i++){
             (*nop_vector)[i].mark_cycle(current_cycle, "*");
         }
@@ -62,10 +62,10 @@ public:
 
     void markCycle(){
         if (instruction_index == -1) return;
-        if((*inst)[instruction_index]->suspended) {
+        if (!(*inst)[instruction_index]->suspended)
+            (*inst)[instruction_index]->mark_cycle(current_cycle, "MEM");
+        else
             (*inst)[instruction_index]->mark_cycle(current_cycle, "*");
-        }
-        else{(*inst)[instruction_index]->mark_cycle(current_cycle, "MEM");}
         for (unsigned int i = 0; i < nop_vector->size(); i++){
             (*nop_vector)[i].mark_cycle(current_cycle, "*");
         }
@@ -93,10 +93,10 @@ public:
     MEMStage* next;
     void markCycle(){
         if (instruction_index == -1) return;
-        if((*inst)[instruction_index]->suspended) {
+        if (!(*inst)[instruction_index]->suspended)
+            (*inst)[instruction_index]->mark_cycle(current_cycle, "EX");
+        else
             (*inst)[instruction_index]->mark_cycle(current_cycle, "*");
-        }
-        else{(*inst)[instruction_index]->mark_cycle(current_cycle, "EX");}
         for (unsigned int i = 0; i < nop_vector->size(); i++){
             (*nop_vector)[i].mark_cycle(current_cycle, "*");
         }
@@ -153,6 +153,9 @@ public:
         if (nop_vector->size() != 0) return false;
         for (int i = 0; i < stalls_num; i++){
             nop_vector->push_back(nopInstruction());
+            for (int j = 0; j <= current_cycle; j++){
+                (*nop_vector)[i].output[j] = (*inst)[instruction_index]->output[j];
+            }
         }
         return true;
     }
@@ -174,12 +177,12 @@ public:
     }
     void markCycle(){
         if (instruction_index == -1) return;
-        if((*inst)[instruction_index]->suspended) {
+        if (!(*inst)[instruction_index]->suspended)
+            (*inst)[instruction_index]->mark_cycle(current_cycle, "ID");
+        else
             (*inst)[instruction_index]->mark_cycle(current_cycle, "*");
-        }
-        else{(*inst)[instruction_index]->mark_cycle(current_cycle, "ID");}
         for (unsigned int i = 0; i < nop_vector->size(); i++){
-            (*nop_vector)[i].mark_cycle(current_cycle, "ID");
+            (*nop_vector)[i].mark_cycle(current_cycle, "*");
         }
     }
     bool passInstruction(){
@@ -212,7 +215,10 @@ public:
     }
     void markCycle(){
         if (instruction_index == -1) return;
-        (*inst)[instruction_index]->mark_cycle(current_cycle, "IF");
+        if (!(*inst)[instruction_index]->suspended)
+            (*inst)[instruction_index]->mark_cycle(current_cycle, "IF");
+        else
+            (*inst)[instruction_index]->mark_cycle(current_cycle, "*");
         for (unsigned int i = 0; i < nop_vector->size(); i++){
             (*nop_vector)[i].mark_cycle(current_cycle, "IF");
         }
