@@ -13,7 +13,7 @@ int main(int argc, char* argv[]){
     std::string instructions[10];
     int instruction_count = 0;
     if (input_file.is_open()){
-        while (getline(input_file, instructions[instruction_count])){
+        while (instruction_count<10 &&getline(input_file, instructions[instruction_count])){
             if (test){
                 std::cout << instructions[instruction_count] + "\n";
             }
